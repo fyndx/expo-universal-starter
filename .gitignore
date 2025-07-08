@@ -39,3 +39,7 @@ yarn-error.*
 # Tamagui
 .tamagui
 
+# Expo
+android/
+ios/
+
