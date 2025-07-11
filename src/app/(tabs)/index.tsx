@@ -4,12 +4,13 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
 	const { data: session } = authClient.useSession();
+
 	return (
 		<View>
 			<Pressable onPress={() => router.push(__DEV__ ? "/_sitemap" : "/")}>
 				<Text>{"Open Site Map"}</Text>
 			</Pressable>
-			<Text>Welcome, {session?.user.name}</Text>
+			<Text>Welcome, {session?.user.email}</Text>
 		</View>
 	);
 }
