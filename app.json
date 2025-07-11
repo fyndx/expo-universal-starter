@@ -41,6 +41,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ec510982-3156-43a8-b4e1-44206ab5e9dd"
+      }
+    },
+    "owner": "fyndx"
   }
 }
