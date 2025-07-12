@@ -16,6 +16,7 @@ if (process.env.EXPO_OS !== "web") {
 
 export const authClient = createAuthClient({
 	baseURL: "https://ship-server.onrender.com/api/auth", // Base URL of your Better Auth backend.
+	// baseURL: "http://localhost:3000/api/auth", // Base URL of your Better Auth backend.
 	plugins: plugins,
 	fetchOptions: {
 		credentials: "include", // Include cookies in requests.

@@ -47,10 +47,10 @@ const common = {
 		bold: "700" as const,
 	},
 	lineHeight: {
-		none: 1,
-		tight: 1.25,
-		normal: 1.5,
-		loose: 2,
+		none: (fontSize: number) => fontSize * 1,
+		tight: (fontSize: number) => fontSize * 1.25,
+		normal: (fontSize: number) => fontSize * 1.5,
+		loose: (fontSize: number) => fontSize * 2,
 	},
 	letterSpacing: {
 		tighter: -0.05,

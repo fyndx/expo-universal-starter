@@ -39,7 +39,7 @@ const styles = StyleSheet.create((theme, rt) => ({
 			_focus: {
 				outlineStyle: "solid",
 				outlineColor: theme.colors.outlineColor,
-				outlineWidth: 2,
+				outlineWidth: 3,
 				outlineOffset: -2,
 			},
 			"&:hover": {

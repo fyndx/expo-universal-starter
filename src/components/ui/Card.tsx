@@ -27,7 +27,7 @@ const styles = StyleSheet.create((theme) => ({
 	title: {
 		fontSize: theme.fontSize["2xl"],
 		fontWeight: theme.fontWeight.semibold,
-		lineHeight: theme.lineHeight.none,
+		lineHeight: theme.lineHeight.none(theme.fontSize["2xl"]),
 		letterSpacing: theme.letterSpacing.tight,
 		color: theme.colors.cardForeground,
 	},

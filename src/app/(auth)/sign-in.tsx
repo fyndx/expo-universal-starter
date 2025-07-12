@@ -8,20 +8,25 @@ import {
 	CardTitle,
 } from "@/src/components/ui/Card";
 import { Input } from "@/src/components/ui/Input";
+import { Spinner } from "@/src/components/ui/Spinner";
+import { Text } from "@/src/components/ui/Text";
 import { authClient } from "@/src/lib/auth-client";
 import { Link, useRouter } from "expo-router";
+import { MotiView } from "moti";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
 
 export default function SignIn() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
 
 	const router = useRouter();
 
 	const handleLogin = async () => {
 		try {
+			setIsLoading(true);
 			const { data, error } = await authClient.signIn.email({
 				email,
 				password,
@@ -32,42 +37,56 @@ export default function SignIn() {
 				return;
 			}
 			router.replace("/");
-		} catch (error) {}
+		} catch (error) {
+			// TODO: Handle unexpected errors
+			console.error("Login error:", error);
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
 		<View style={styles.container}>
 			<View style={styles.form}>
-				<Card>
-					<CardHeader>
-						<CardTitle>Login to your account</CardTitle>
-						<CardDescription>
-							Enter your email and password to sign in.
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<Input
-							id={"email"}
-							placeholder="Email"
-							value={email}
-							onChangeText={setEmail}
-						/>
-						<Input
-							id={"password"}
-							placeholder="Password"
-							value={password}
-							onChangeText={setPassword}
-							secureTextEntry={true}
-						/>
-						{/* Forgot Password */}
-						<Link href="/forgot-password">
-							<Text style={styles.forgotPassword}>Forgot Password?</Text>
-						</Link>
-					</CardContent>
-					<CardFooter>
-						<Button onPress={handleLogin}>{"Sign In"}</Button>
-					</CardFooter>
-				</Card>
+				<MotiView
+					from={{ opacity: 0, translateY: -20 }}
+					animate={{ opacity: 1, translateY: 0 }}
+					transition={{ type: "timing", duration: 300 }}
+				>
+					<Card>
+						<CardHeader>
+							<CardTitle>Login to your account</CardTitle>
+							<CardDescription>
+								Enter your email and password to sign in.
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<Input
+								id={"email"}
+								placeholder="Email"
+								value={email}
+								onChangeText={setEmail}
+							/>
+							<Input
+								id={"password"}
+								placeholder="Password"
+								value={password}
+								onChangeText={setPassword}
+								secureTextEntry={true}
+							/>
+							{/* Forgot Password */}
+							<Link href="/forgot-password">
+								<Text style={styles.forgotPassword}>Forgot Password?</Text>
+							</Link>
+						</CardContent>
+						<CardFooter>
+							<Button onPress={handleLogin} style={styles.signInButtonContent}>
+								{isLoading && <Spinner />}
+								<Text>{isLoading ? "Signing In..." : "Sign In"}</Text>
+							</Button>
+						</CardFooter>
+					</Card>
+				</MotiView>
 			</View>
 		</View>
 	);
@@ -98,5 +117,10 @@ const styles = StyleSheet.create((theme, rt) => ({
 				color: theme.colors.primary,
 			},
 		},
+	},
+	signInButtonContent: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: theme.gap(1),
 	},
 }));

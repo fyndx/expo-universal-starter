@@ -32,6 +32,7 @@
     "expo-symbols": "~0.4.5",
     "expo-system-ui": "~5.0.10",
     "expo-web-browser": "~14.2.0",
+    "moti": "^0.30.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
@@ -44,7 +45,9 @@
     "react-native-svg": "15.11.2",
     "react-native-unistyles": "^3.0.0",
     "react-native-web": "~0.20.0",
-    "react-native-webview": "13.13.5"
+    "react-native-webview": "13.13.5",
+    "sonner": "^2.0.6",
+    "sonner-native": "^0.21.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

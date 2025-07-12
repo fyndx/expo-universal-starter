@@ -11,6 +11,7 @@ export const Button: React.FC<ButtonProps> = ({
 	size = "base",
 	disabled = false,
 	children,
+	style,
 	...pressableProps
 }) => {
 	styles.useVariants({
@@ -20,7 +21,11 @@ export const Button: React.FC<ButtonProps> = ({
 	});
 
 	return (
-		<Pressable style={styles.button} disabled={disabled} {...pressableProps}>
+		<Pressable
+			style={[styles.button, style]}
+			disabled={disabled}
+			{...pressableProps}
+		>
 			{typeof children === "string" ? (
 				<Text style={styles.label}>{children}</Text>
 			) : (
