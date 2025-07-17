@@ -4,6 +4,8 @@ import * as React from "react";
 import { useEffect } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ThemeToggle } from "~/components/ThemeToggle";
+import { Button } from "~/components/ui/button";
 import {
 	NavigationMenu,
 	NavigationMenuContent,
@@ -89,82 +91,111 @@ export function Header() {
 					style={StyleSheet.absoluteFill}
 				/>
 			)}
-			<NavigationMenu value={value} onValueChange={setValue}>
-				<NavigationMenuList>
-					<NavigationMenuItem value="getting-started">
-						<NavigationMenuTrigger>
-							<Text>Getting started</Text>
-						</NavigationMenuTrigger>
-						<NavigationMenuContent insets={contentInsets}>
-							<View
-								role="list"
-								className="web:grid gap-3 p-6 md:w-[400px] lg:w-[500px] web:lg:grid-cols-[.75fr_1fr]"
-							>
-								<View role="listitem" className="web:row-span-3">
-									<NavigationMenuLink asChild>
-										<View className="flex web:select-none flex-col justify-end rounded-md web:bg-gradient-to-b web:from-muted/50 web:to-muted native:border native:border-border p-6 web:no-underline web:outline-none web:focus:shadow-md web:focus:shadow-foreground/5">
-											<Sparkles size={16} className="text-foreground" />
-											<Text className="mb-2 mt-4 text-lg native:text-2xl font-medium">
-												react-native-reusables
-											</Text>
-											<Text className="text-sm native:text-base leading-tight text-muted-foreground">
-												Universal components that you can copy and paste into
-												your apps. Accessible. Customizable. Open Source.
-											</Text>
-										</View>
-									</NavigationMenuLink>
-								</View>
-								<ListItem href="/docs" title="Introduction">
-									<Text>
-										Re-usable components built using Radix UI on the web and
-										Tailwind CSS.
-									</Text>
-								</ListItem>
-								<ListItem href="/docs/installation" title="Installation">
-									<Text>
-										How to install dependencies and structure your app.
-									</Text>
-								</ListItem>
-								<ListItem
-									href="/docshttps://rn-primitives.vercel.app/typography"
-									title="Typography"
+			<View className="flex-row items-center justify-between px-4 py-2 border-b border-border bg-background relative z-50">
+				{/* Logo Section */}
+				<Pressable
+					onPress={() => {
+						// TODO: Navigate to home
+					}}
+					className="flex-row items-center gap-2"
+				>
+					<Sparkles size={24} className="text-primary" />
+					<Text className="text-lg font-bold text-foreground">
+						Universal Starter
+					</Text>
+				</Pressable>
+
+				{/* Navigation Menu - Center */}
+				<NavigationMenu value={value} onValueChange={setValue}>
+					<NavigationMenuList>
+						<NavigationMenuItem value="getting-started">
+							<NavigationMenuTrigger>
+								<Text>Getting started</Text>
+							</NavigationMenuTrigger>
+							<NavigationMenuContent insets={contentInsets}>
+								<View
+									role="list"
+									className="web:grid gap-3 p-6 md:w-[400px] lg:w-[500px] web:lg:grid-cols-[.75fr_1fr]"
 								>
-									<Text>Styles for headings, paragraphs, lists...etc</Text>
-								</ListItem>
-							</View>
-						</NavigationMenuContent>
-					</NavigationMenuItem>
-					<NavigationMenuItem value="components">
-						<NavigationMenuTrigger>
-							<Text className="text-foreground">Components</Text>
-						</NavigationMenuTrigger>
-						<NavigationMenuContent insets={contentInsets}>
-							<View
-								role="list"
-								className="web:grid w-[400px] gap-3 p-4 md:w-[500px] web:md:grid-cols-2 lg:w-[600px] "
-							>
-								{components.map((component) => (
-									<ListItem
-										key={component.title}
-										title={component.title}
-										href={component.href}
-									>
-										{component.description}
+									<View role="listitem" className="web:row-span-3">
+										<NavigationMenuLink asChild>
+											<View className="flex web:select-none flex-col justify-end rounded-md web:bg-gradient-to-b web:from-muted/50 web:to-muted native:border native:border-border p-6 web:no-underline web:outline-none web:focus:shadow-md web:focus:shadow-foreground/5">
+												<Sparkles size={16} className="text-foreground" />
+												<Text className="mb-2 mt-4 text-lg native:text-2xl font-medium">
+													react-native-reusables
+												</Text>
+												<Text className="text-sm native:text-base leading-tight text-muted-foreground">
+													Universal components that you can copy and paste into
+													your apps. Accessible. Customizable. Open Source.
+												</Text>
+											</View>
+										</NavigationMenuLink>
+									</View>
+									<ListItem href="/docs" title="Introduction">
+										<Text>
+											Re-usable components built using Radix UI on the web and
+											Tailwind CSS.
+										</Text>
 									</ListItem>
-								))}
-							</View>
-						</NavigationMenuContent>
-					</NavigationMenuItem>
-					<NavigationMenuItem value="documentation">
-						<NavigationMenuLink
-							onPress={closeAll}
-							className={navigationMenuTriggerStyle()}
-						>
-							<Text>Documentation</Text>
-						</NavigationMenuLink>
-					</NavigationMenuItem>
-				</NavigationMenuList>
-			</NavigationMenu>
+									<ListItem href="/docs/installation" title="Installation">
+										<Text>
+											How to install dependencies and structure your app.
+										</Text>
+									</ListItem>
+									<ListItem
+										href="/docshttps://rn-primitives.vercel.app/typography"
+										title="Typography"
+									>
+										<Text>Styles for headings, paragraphs, lists...etc</Text>
+									</ListItem>
+								</View>
+							</NavigationMenuContent>
+						</NavigationMenuItem>
+						<NavigationMenuItem value="components">
+							<NavigationMenuTrigger>
+								<Text className="text-foreground">Components</Text>
+							</NavigationMenuTrigger>
+							<NavigationMenuContent insets={contentInsets}>
+								<View
+									role="list"
+									className="web:grid w-[400px] gap-3 p-4 md:w-[500px] web:md:grid-cols-2 lg:w-[600px] "
+								>
+									{components.map((component) => (
+										<ListItem
+											key={component.title}
+											title={component.title}
+											href={component.href}
+										>
+											{component.description}
+										</ListItem>
+									))}
+								</View>
+							</NavigationMenuContent>
+						</NavigationMenuItem>
+						<NavigationMenuItem value="documentation">
+							<NavigationMenuLink
+								onPress={closeAll}
+								className={navigationMenuTriggerStyle()}
+							>
+								<Text>Documentation</Text>
+							</NavigationMenuLink>
+						</NavigationMenuItem>
+					</NavigationMenuList>
+				</NavigationMenu>
+				{/* Right Section - Theme Toggle & Login */}
+				<View className="flex-row items-center gap-2">
+					<ThemeToggle />
+					<Button
+						variant="outline"
+						size="sm"
+						onPress={() => {
+							// TODO: Navigate to login or handle auth
+						}}
+					>
+						<Text>Login</Text>
+					</Button>
+				</View>
+			</View>
 		</>
 	);
 }

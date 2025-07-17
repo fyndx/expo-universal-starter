@@ -2,7 +2,8 @@ import { authClient } from "@/src/lib/auth-client";
 import { Link, useRouter } from "expo-router";
 import { MotiView } from "moti";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
+import { ActivityIndicator } from "~/components/ui/activity-indicator";
 import { Button } from "~/components/ui/button";
 import {
 	Card,
@@ -44,8 +45,8 @@ export default function SignIn() {
 	};
 
 	return (
-		<View style={styles.container}>
-			<View style={styles.form}>
+		<View className="flex-1 justify-center items-center">
+			<View className="w-full max-w-sm">
 				<MotiView
 					from={{ opacity: 0, translateY: -20 }}
 					animate={{ opacity: 1, translateY: 0 }}
@@ -58,7 +59,7 @@ export default function SignIn() {
 								Enter your email and password to sign in.
 							</CardDescription>
 						</CardHeader>
-						<CardContent>
+						<CardContent className="gap-4">
 							<Input
 								id={"email"}
 								placeholder="Email"
@@ -74,12 +75,17 @@ export default function SignIn() {
 							/>
 							{/* Forgot Password */}
 							<Link href="/forgot-password">
-								<Text style={styles.forgotPassword}>Forgot Password?</Text>
+								<Text className="mt-2 text-right text-sm text-muted-foreground self-end hover:underline hover:text-primary">
+									Forgot Password?
+								</Text>
 							</Link>
 						</CardContent>
 						<CardFooter>
-							<Button onPress={handleLogin} style={styles.signInButtonContent}>
-								{/* {isLoading && <Spinner />} */}
+							<Button
+								onPress={handleLogin}
+								className="flex-1 flex-row items-center gap-4"
+							>
+								{isLoading && <ActivityIndicator />}
 								<Text>{isLoading ? "Signing In..." : "Sign In"}</Text>
 							</Button>
 						</CardFooter>
@@ -89,36 +95,3 @@ export default function SignIn() {
 		</View>
 	);
 }
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
-		// padding: theme.gap(2),
-		// backgroundColor: theme.colors.background,
-	},
-	form: {
-		width: "100%",
-		maxWidth: 400,
-		// gap: theme.gap(2),
-	},
-	forgotPassword: {
-		// marginTop: theme.gap(2),
-		// color: theme.colors.mutedForeground,
-		textAlign: "right",
-		// fontSize: theme.fontSize.sm,
-		alignSelf: "flex-end",
-		_web: {
-			_hover: {
-				textDecorationLine: "underline",
-				// color: theme.colors.primary,
-			},
-		},
-	},
-	signInButtonContent: {
-		flexDirection: "row",
-		alignItems: "center",
-		// gap: theme.gap(1),
-	},
-});
