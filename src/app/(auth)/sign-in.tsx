@@ -1,4 +1,9 @@
-import { Button } from "@/src/components/ui/Button";
+import { authClient } from "@/src/lib/auth-client";
+import { Link, useRouter } from "expo-router";
+import { MotiView } from "moti";
+import { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { Button } from "~/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -6,16 +11,9 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/src/components/ui/Card";
-import { Input } from "@/src/components/ui/Input";
-import { Spinner } from "@/src/components/ui/Spinner";
-import { Text } from "@/src/components/ui/Text";
-import { authClient } from "@/src/lib/auth-client";
-import { Link, useRouter } from "expo-router";
-import { MotiView } from "moti";
-import { useState } from "react";
-import { View } from "react-native";
-import { StyleSheet } from "react-native-unistyles";
+} from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Text } from "~/components/ui/text";
 
 export default function SignIn() {
 	const [email, setEmail] = useState("");
@@ -81,7 +79,7 @@ export default function SignIn() {
 						</CardContent>
 						<CardFooter>
 							<Button onPress={handleLogin} style={styles.signInButtonContent}>
-								{isLoading && <Spinner />}
+								{/* {isLoading && <Spinner />} */}
 								<Text>{isLoading ? "Signing In..." : "Sign In"}</Text>
 							</Button>
 						</CardFooter>
@@ -92,35 +90,35 @@ export default function SignIn() {
 	);
 }
 
-const styles = StyleSheet.create((theme, rt) => ({
+const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		padding: theme.gap(2),
-		backgroundColor: theme.colors.background,
+		// padding: theme.gap(2),
+		// backgroundColor: theme.colors.background,
 	},
 	form: {
 		width: "100%",
 		maxWidth: 400,
-		gap: theme.gap(2),
+		// gap: theme.gap(2),
 	},
 	forgotPassword: {
-		marginTop: theme.gap(2),
-		color: theme.colors.mutedForeground,
+		// marginTop: theme.gap(2),
+		// color: theme.colors.mutedForeground,
 		textAlign: "right",
-		fontSize: theme.fontSize.sm,
+		// fontSize: theme.fontSize.sm,
 		alignSelf: "flex-end",
 		_web: {
 			_hover: {
 				textDecorationLine: "underline",
-				color: theme.colors.primary,
+				// color: theme.colors.primary,
 			},
 		},
 	},
 	signInButtonContent: {
 		flexDirection: "row",
 		alignItems: "center",
-		gap: theme.gap(1),
+		// gap: theme.gap(1),
 	},
-}));
+});

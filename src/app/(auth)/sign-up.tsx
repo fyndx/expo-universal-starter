@@ -1,7 +1,7 @@
-import { Input } from "@/src/components/ui/Input";
 import { authClient } from "@/src/lib/auth-client";
 import { useState } from "react";
 import { Button, View } from "react-native";
+import { Input } from "~/components/ui/input";
 
 export default function SignUp() {
 	const [email, setEmail] = useState("");

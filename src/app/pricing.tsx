@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ScrollView, Switch, Text, TouchableOpacity, View } from "react-native";
-import { StyleSheet, useUnistyles } from "react-native-unistyles";
 
 interface PricingTier {
 	id: string;
@@ -17,7 +16,6 @@ interface PricingTier {
 }
 
 const PricingPage = () => {
-	const { theme } = useUnistyles();
 	const [isAnnual, setIsAnnual] = useState(false);
 
 	const pricingTiers: PricingTier[] = [
@@ -91,80 +89,107 @@ const PricingPage = () => {
 	];
 
 	const PricingCard = ({ tier }: { tier: PricingTier }) => (
-		<View style={[styles.card, tier.popular && styles.popularCard]}>
+		<View
+			className={`
+                bg-white rounded-2xl border border-gray-200 p-6 w-full sm:w-[350px] max-w-[350px]
+                shadow-sm shadow-black/10
+                ${tier.popular ? "border-2 border-purple-500 bg-purple-50 scale-105" : ""}
+            `}
+		>
 			{tier.popular && (
-				<View style={styles.popularBadge}>
-					<Text style={styles.popularBadgeText}>Most Popular</Text>
+				<View className="absolute top-0 right-0 bg-purple-500 rounded-bl-xl px-3 py-1.5 z-10">
+					<Text className="text-white text-xs font-semibold">Most Popular</Text>
 				</View>
 			)}
 
-			<View style={styles.cardHeader}>
-				<View style={styles.cardHeaderTop}>
+			<View className="mb-6">
+				<View className="flex-row justify-between items-center mb-4">
 					<View
-						style={[
-							styles.iconContainer,
-							tier.popular && styles.popularIconContainer,
-						]}
+						className={`
+                            w-12 h-12 rounded-full bg-gray-200 items-center justify-center
+                            ${tier.popular ? "bg-purple-100" : ""}
+                        `}
 					>
-						<Text style={styles.iconText}>{tier.icon}</Text>
+						<Text className="text-2xl">{tier.icon}</Text>
 					</View>
 					{tier.savings && (
 						<View
-							style={[
-								styles.savingsBadge,
-								tier.popular && styles.popularSavingsBadge,
-							]}
+							className={`
+                                rounded px-2 py-1
+                                ${tier.popular ? "bg-green-500" : "bg-orange-500"}
+                            `}
 						>
-							<Text style={styles.savingsBadgeText}>{tier.savings}</Text>
+							<Text className="text-white text-xs font-semibold">
+								{tier.savings}
+							</Text>
 						</View>
 					)}
 				</View>
 
-				<Text style={[styles.tierName, tier.popular && styles.popularTierName]}>
+				<Text
+					className={`
+                        text-2xl font-bold text-gray-900 mb-2
+                        ${tier.popular ? "text-purple-600" : ""}
+                    `}
+				>
 					{tier.name}
 				</Text>
 
-				<View style={styles.priceContainer}>
-					<Text style={[styles.price, tier.popular && styles.popularPrice]}>
+				<View className="flex-row items-baseline mb-2">
+					<Text
+						className={`
+                            text-4xl font-bold text-gray-900
+                            ${tier.popular ? "text-purple-600" : ""}
+                        `}
+					>
 						{tier.price}
 					</Text>
-					<Text style={styles.period}>{tier.period}</Text>
+					<Text className="text-base text-gray-500 ml-2">{tier.period}</Text>
 				</View>
 
 				{tier.originalPrice && (
-					<Text style={styles.originalPrice}>{tier.originalPrice}</Text>
+					<Text className="text-base text-gray-500 line-through mb-2">
+						{tier.originalPrice}
+					</Text>
 				)}
 
-				<Text style={styles.description}>{tier.description}</Text>
+				<Text className="text-sm text-gray-500 leading-5">
+					{tier.description}
+				</Text>
 			</View>
 
-			<View style={styles.cardBody}>
+			<View className="gap-6">
 				<TouchableOpacity
-					style={[
-						styles.button,
-						tier.popular ? styles.primaryButton : styles.secondaryButton,
-					]}
+					className={`
+                        rounded-lg py-4 px-6 items-center
+                        ${
+													tier.popular
+														? "bg-purple-600"
+														: "bg-transparent border border-gray-200"
+												}
+                    `}
 					onPress={() => console.log(`Selected: ${tier.name}`)}
 				>
 					<Text
-						style={[
-							styles.buttonText,
-							tier.popular
-								? styles.primaryButtonText
-								: styles.secondaryButtonText,
-						]}
+						className={`
+                            text-base font-semibold
+                            ${tier.popular ? "text-white" : "text-gray-900"}
+                        `}
 					>
 						{tier.buttonText}
 					</Text>
 				</TouchableOpacity>
 
-				<View style={styles.featuresList}>
+				<View className="gap-3">
 					{tier.features.map((feature, index) => (
-						<View key={`${tier.id}-${index}`} style={styles.featureItem}>
-							<View style={styles.checkIcon}>
-								<Text style={styles.checkIconText}>✓</Text>
+						<View
+							key={`${tier.id}-${index}`}
+							className="flex-row items-center gap-3"
+						>
+							<View className="w-5 h-5 rounded-full bg-green-500 items-center justify-center">
+								<Text className="text-white text-xs font-semibold">✓</Text>
 							</View>
-							<Text style={styles.featureText}>{feature}</Text>
+							<Text className="text-sm text-gray-600 flex-1">{feature}</Text>
 						</View>
 					))}
 				</View>
@@ -173,73 +198,84 @@ const PricingPage = () => {
 	);
 
 	return (
-		<ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-			<View style={styles.content}>
+		<ScrollView
+			className="flex-1 bg-white"
+			showsVerticalScrollIndicator={false}
+		>
+			<View className="px-4 sm:px-6 md:px-8 lg:px-12 py-6 sm:py-8 md:py-12">
 				{/* Header Section */}
-				<View style={styles.header}>
-					<Text style={styles.title}>Choose Your Plan</Text>
-					<Text style={styles.subtitle}>
+				<View className="items-center mb-8 sm:mb-12">
+					<Text className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 text-center mb-4">
+						Choose Your Plan
+					</Text>
+					<Text className="text-base sm:text-lg md:text-xl text-gray-500 text-center leading-6 max-w-[600px] mb-8">
 						Select the perfect plan for your needs. Start with our flexible
 						monthly option, save with annual billing, or get lifetime access for
 						the ultimate value.
 					</Text>
 
 					{/* Billing Toggle */}
-					<View style={styles.toggleContainer}>
+					<View className="flex-row items-center bg-gray-50 rounded-xl p-4 gap-4">
 						<Text
-							style={[styles.toggleText, !isAnnual && styles.activeToggleText]}
+							className={`text-base font-semibold ${!isAnnual ? "text-gray-900" : "text-gray-500"}`}
 						>
 							Monthly
 						</Text>
 						<Switch
 							value={isAnnual}
 							onValueChange={setIsAnnual}
-							trackColor={{ false: "#e2e8f0" }}
+							trackColor={{ false: "#e2e8f0", true: "#a855f7" }}
 							thumbColor={isAnnual ? "#fff" : "#f4f3f4"}
 						/>
-						<View style={styles.annualToggleContainer}>
+						<View className="flex-row items-center gap-2">
 							<Text
-								style={[styles.toggleText, isAnnual && styles.activeToggleText]}
+								className={`text-base font-semibold ${isAnnual ? "text-gray-900" : "text-gray-500"}`}
 							>
 								Annual
 							</Text>
-							<View style={styles.savingsHighlight}>
-								<Text style={styles.savingsHighlightText}>Save 17%</Text>
+							<View className="bg-green-500 rounded px-2 py-1">
+								<Text className="text-white text-xs font-semibold">
+									Save 17%
+								</Text>
 							</View>
 						</View>
 					</View>
 				</View>
 
 				{/* Pricing Cards */}
-				<View style={styles.cardsContainer}>
+				<View className="flex-col lg:flex-row items-center lg:items-start justify-center gap-6 lg:gap-8 mb-12 sm:mb-16">
 					{pricingTiers.map((tier) => (
 						<PricingCard key={tier.id} tier={tier} />
 					))}
 				</View>
 
 				{/* Common Features Section */}
-				<View style={styles.commonFeaturesContainer}>
-					<Text style={styles.commonFeaturesTitle}>All Plans Include</Text>
-					<View style={styles.separator} />
-					<View style={styles.commonFeaturesList}>
+				<View className="bg-gray-50 rounded-2xl p-8 mb-12 sm:mb-16">
+					<Text className="text-2xl font-bold text-gray-900 text-center mb-4">
+						All Plans Include
+					</Text>
+					<View className="h-px bg-gray-200 mb-6" />
+					<View className="flex-row flex-wrap justify-center gap-4">
 						{commonFeatures.map((feature) => (
 							<View
 								key={`common-feature-${feature}`}
-								style={styles.commonFeatureItem}
+								className="flex-row items-center gap-2 min-w-[45%] sm:min-w-[200px]"
 							>
-								<View style={styles.commonCheckIcon}>
-									<Text style={styles.commonCheckIconText}>✓</Text>
+								<View className="w-4 h-4 rounded-lg bg-green-500 items-center justify-center">
+									<Text className="text-white text-xs font-semibold">✓</Text>
 								</View>
-								<Text style={styles.commonFeatureText}>{feature}</Text>
+								<Text className="text-sm text-gray-600">{feature}</Text>
 							</View>
 						))}
 					</View>
 				</View>
 
 				{/* FAQ Section */}
-				<View style={styles.faqContainer}>
-					<Text style={styles.faqTitle}>Frequently Asked Questions</Text>
-					<View style={styles.faqList}>
+				<View className="mb-12 sm:mb-16">
+					<Text className="text-2xl font-bold text-gray-900 text-center mb-6">
+						Frequently Asked Questions
+					</Text>
+					<View className="gap-4">
 						{[
 							{
 								question: "Can I change my plan later?",
@@ -257,400 +293,38 @@ const PricingPage = () => {
 									"Yes, we offer a 30-day money-back guarantee for all plans. No questions asked.",
 							},
 						].map((faq) => (
-							<View key={`faq-${faq.question}`} style={styles.faqItem}>
-								<Text style={styles.faqQuestion}>{faq.question}</Text>
-								<Text style={styles.faqAnswer}>{faq.answer}</Text>
+							<View
+								key={`faq-${faq.question}`}
+								className="bg-white rounded-xl border border-gray-200 p-5"
+							>
+								<Text className="text-base font-semibold text-gray-900 mb-2">
+									{faq.question}
+								</Text>
+								<Text className="text-sm text-gray-500 leading-5">
+									{faq.answer}
+								</Text>
 							</View>
 						))}
 					</View>
 				</View>
 
 				{/* CTA Section */}
-				<View style={styles.ctaContainer}>
-					<Text style={styles.ctaTitle}>Still have questions?</Text>
+				<View className="items-center gap-4">
+					<Text className="text-2xl font-bold text-gray-900 text-center">
+						Still have questions?
+					</Text>
 					<TouchableOpacity
-						style={styles.ctaButton}
+						className="bg-purple-600 rounded-lg py-4 px-8"
 						onPress={() => console.log("Contact sales")}
 					>
-						<Text style={styles.ctaButtonText}>📞 Contact Our Sales Team</Text>
+						<Text className="text-white text-base font-semibold">
+							📞 Contact Our Sales Team
+						</Text>
 					</TouchableOpacity>
 				</View>
 			</View>
 		</ScrollView>
 	);
 };
-
-const styles = StyleSheet.create((theme) => ({
-	container: {
-		flex: 1,
-		backgroundColor: "#ffffff",
-	},
-	content: {
-		paddingHorizontal: {
-			xs: 16,
-			sm: 24,
-			md: 32,
-			lg: 48,
-		},
-		paddingVertical: {
-			xs: 24,
-			sm: 32,
-			md: 48,
-		},
-	},
-	header: {
-		alignItems: "center",
-		marginBottom: {
-			xs: 32,
-			sm: 48,
-		},
-	},
-	title: {
-		fontSize: {
-			xs: 28,
-			sm: 36,
-			md: 44,
-		},
-		fontWeight: "700",
-		color: "#1a202c",
-		textAlign: "center",
-		marginBottom: 16,
-	},
-	subtitle: {
-		fontSize: {
-			xs: 16,
-			sm: 18,
-			md: 20,
-		},
-		color: "#718096",
-		textAlign: "center",
-		lineHeight: 24,
-		maxWidth: 600,
-		marginBottom: 32,
-	},
-	toggleContainer: {
-		flexDirection: "row",
-		alignItems: "center",
-		backgroundColor: "#f7fafc",
-		borderRadius: 12,
-		padding: 16,
-		gap: 16,
-	},
-	toggleText: {
-		fontSize: 16,
-		fontWeight: "600",
-		color: "#718096",
-	},
-	activeToggleText: {
-		color: "#1a202c",
-	},
-	annualToggleContainer: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 8,
-	},
-	savingsHighlight: {
-		backgroundColor: "#48bb78",
-		borderRadius: 4,
-		paddingHorizontal: 8,
-		paddingVertical: 4,
-	},
-	savingsHighlightText: {
-		color: "#ffffff",
-		fontSize: 12,
-		fontWeight: "600",
-	},
-	cardsContainer: {
-		flexDirection: {
-			xs: "column",
-			lg: "row",
-		},
-		alignItems: {
-			xs: "center",
-			lg: "flex-start",
-		},
-		justifyContent: "center",
-		gap: {
-			xs: 24,
-			lg: 32,
-		},
-		marginBottom: {
-			xs: 48,
-			sm: 64,
-		},
-	},
-	card: {
-		backgroundColor: "#ffffff",
-		borderRadius: 16,
-		borderWidth: 1,
-		borderColor: "#e2e8f0",
-		padding: 24,
-		width: {
-			xs: "100%",
-			sm: 350,
-		},
-		maxWidth: 350,
-		shadowColor: "#000",
-		shadowOffset: {
-			width: 0,
-			height: 2,
-		},
-		shadowOpacity: 0.1,
-		shadowRadius: 8,
-		elevation: 4,
-	},
-	popularCard: {
-		borderWidth: 2,
-		backgroundColor: "#fef9ff",
-		transform: [{ scale: 1.05 }],
-	},
-	popularBadge: {
-		position: "absolute",
-		top: 0,
-		right: 0,
-		borderBottomLeftRadius: 12,
-		paddingHorizontal: 12,
-		paddingVertical: 6,
-		zIndex: 1,
-	},
-	popularBadgeText: {
-		color: "#ffffff",
-		fontSize: 12,
-		fontWeight: "600",
-	},
-	cardHeader: {
-		marginBottom: 24,
-	},
-	cardHeaderTop: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
-		marginBottom: 16,
-	},
-	iconContainer: {
-		width: 50,
-		height: 50,
-		borderRadius: 25,
-		backgroundColor: "#e2e8f0",
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	popularIconContainer: {},
-	iconText: {
-		fontSize: 24,
-	},
-	savingsBadge: {
-		backgroundColor: "#ed8936",
-		borderRadius: 4,
-		paddingHorizontal: 8,
-		paddingVertical: 4,
-	},
-	popularSavingsBadge: {
-		backgroundColor: "#48bb78",
-	},
-	savingsBadgeText: {
-		color: "#ffffff",
-		fontSize: 12,
-		fontWeight: "600",
-	},
-	tierName: {
-		fontSize: 24,
-		fontWeight: "700",
-		color: "#1a202c",
-		marginBottom: 8,
-	},
-	popularTierName: {
-		color: "#ff1ff4",
-	},
-	priceContainer: {
-		flexDirection: "row",
-		alignItems: "baseline",
-		marginBottom: 8,
-	},
-	price: {
-		fontSize: 36,
-		fontWeight: "700",
-		color: "#1a202c",
-	},
-	popularPrice: {
-		color: "#ff1ff4",
-	},
-	period: {
-		fontSize: 16,
-		color: "#718096",
-		marginLeft: 8,
-	},
-	originalPrice: {
-		fontSize: 16,
-		color: "#718096",
-		textDecorationLine: "line-through",
-		marginBottom: 8,
-	},
-	description: {
-		fontSize: 14,
-		color: "#718096",
-		lineHeight: 20,
-	},
-	cardBody: {
-		gap: 24,
-	},
-	button: {
-		borderRadius: 8,
-		paddingVertical: 16,
-		paddingHorizontal: 24,
-		alignItems: "center",
-	},
-	primaryButton: {
-		backgroundColor: "#ff1ff4",
-	},
-	secondaryButton: {
-		backgroundColor: "transparent",
-		borderWidth: 1,
-		borderColor: "#e2e8f0",
-	},
-	buttonText: {
-		fontSize: 16,
-		fontWeight: "600",
-	},
-	primaryButtonText: {
-		color: "#ffffff",
-	},
-	secondaryButtonText: {
-		color: "#1a202c",
-	},
-	featuresList: {
-		gap: 12,
-	},
-	featureItem: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 12,
-	},
-	checkIcon: {
-		width: 20,
-		height: 20,
-		borderRadius: 10,
-		backgroundColor: "#48bb78",
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	checkIconText: {
-		color: "#ffffff",
-		fontSize: 12,
-		fontWeight: "600",
-	},
-	featureText: {
-		fontSize: 14,
-		color: "#4a5568",
-		flex: 1,
-	},
-	commonFeaturesContainer: {
-		backgroundColor: "#f7fafc",
-		borderRadius: 16,
-		padding: 32,
-		marginBottom: {
-			xs: 48,
-			sm: 64,
-		},
-	},
-	commonFeaturesTitle: {
-		fontSize: 24,
-		fontWeight: "700",
-		color: "#1a202c",
-		textAlign: "center",
-		marginBottom: 16,
-	},
-	separator: {
-		height: 1,
-		backgroundColor: "#e2e8f0",
-		marginBottom: 24,
-	},
-	commonFeaturesList: {
-		flexDirection: "row",
-		flexWrap: "wrap",
-		justifyContent: "center",
-		gap: 16,
-	},
-	commonFeatureItem: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 8,
-		minWidth: {
-			xs: "45%",
-			sm: 200,
-		},
-	},
-	commonCheckIcon: {
-		width: 16,
-		height: 16,
-		borderRadius: 8,
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	commonCheckIconText: {
-		color: "#ffffff",
-		fontSize: 10,
-		fontWeight: "600",
-	},
-	commonFeatureText: {
-		fontSize: 14,
-		color: "#4a5568",
-	},
-	faqContainer: {
-		marginBottom: {
-			xs: 48,
-			sm: 64,
-		},
-	},
-	faqTitle: {
-		fontSize: 24,
-		fontWeight: "700",
-		color: "#1a202c",
-		textAlign: "center",
-		marginBottom: 24,
-	},
-	faqList: {
-		gap: 16,
-	},
-	faqItem: {
-		backgroundColor: "#ffffff",
-		borderRadius: 12,
-		borderWidth: 1,
-		borderColor: "#e2e8f0",
-		padding: 20,
-	},
-	faqQuestion: {
-		fontSize: 16,
-		fontWeight: "600",
-		color: "#1a202c",
-		marginBottom: 8,
-	},
-	faqAnswer: {
-		fontSize: 14,
-		color: "#718096",
-		lineHeight: 20,
-	},
-	ctaContainer: {
-		alignItems: "center",
-		gap: 16,
-	},
-	ctaTitle: {
-		fontSize: 24,
-		fontWeight: "700",
-		color: "#1a202c",
-		textAlign: "center",
-	},
-	ctaButton: {
-		backgroundColor: "#ff1ff4",
-		borderRadius: 8,
-		paddingVertical: 16,
-		paddingHorizontal: 32,
-	},
-	ctaButtonText: {
-		color: "#ffffff",
-		fontSize: 16,
-		fontWeight: "600",
-	},
-}));
 
 export default PricingPage;
