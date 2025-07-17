@@ -43,7 +43,7 @@ const usePlatformSpecificSetup = Platform.select({
 export default function RootLayout() {
 	usePlatformSpecificSetup();
 	const hasMounted = useRef(false);
-	const { colorScheme, isDarkColorScheme } = useColorScheme();
+	const { isDarkColorScheme, isLoaded } = useColorScheme();
 	const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
 
 	useIsomorphicLayoutEffect(() => {
@@ -59,12 +59,12 @@ export default function RootLayout() {
 		hasMounted.current = true;
 	}, []);
 
-	const [loaded] = useFonts({
+	const [isFontsLoaded] = useFonts({
 		SpaceMono: require("../../assets/fonts/SpaceMono-Regular.ttf"),
 	});
 
-	if (!loaded || !isColorSchemeLoaded) {
-		// Async font loading only occurs in development.
+	if (!isFontsLoaded || !isColorSchemeLoaded || !isLoaded) {
+		// Wait for fonts and stored color scheme to load
 		return null;
 	}
 
