@@ -1,6 +1,6 @@
+import { useColorScheme } from "@/src/hooks/useColorScheme";
 import { useIsomorphicLayoutEffect } from "@/src/hooks/useIsomorphicLayout";
 import { NAV_THEME } from "@/src/lib/constants";
-import { useColorScheme } from "@/src/lib/useColorScheme";
 import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { useRef } from "react";

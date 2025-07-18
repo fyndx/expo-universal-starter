@@ -1,6 +1,6 @@
 import { useColorScheme as useNativewindColorScheme } from "nativewind";
 import { useCallback, useEffect, useState } from "react";
-import { storage } from "./storage";
+import { storage } from "../lib/storage";
 
 export type ColorScheme = "light" | "dark" | "system";
 
