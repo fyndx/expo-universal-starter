@@ -2,14 +2,8 @@ import "react-native-reanimated";
 import "../../global.css";
 
 import { useIsomorphicLayoutEffect } from "@/src/hooks/useIsomorphicLayout";
-import { NAV_THEME } from "@/src/lib/constants";
 import { Toaster } from "@/src/lib/sonner/sonner";
-import {
-	DarkTheme,
-	DefaultTheme,
-	type Theme,
-	ThemeProvider,
-} from "@react-navigation/native";
+import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -18,15 +12,6 @@ import { Appearance, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppSetup } from "~/hooks/useAppSetup";
 import { setAndroidNavigationBar } from "../lib/android-navigation-bar";
-
-const LIGHT_THEME: Theme = {
-	...DefaultTheme,
-	colors: NAV_THEME.light,
-};
-const DARK_THEME: Theme = {
-	...DarkTheme,
-	colors: NAV_THEME.dark,
-};
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -52,8 +37,9 @@ export default function RootLayout() {
 		<SafeAreaView style={{ flex: 1, flexDirection: "column" }}>
 			<ThemeProvider value={theme}>
 				<Stack>
-					<Stack.Screen name="(auth)" options={{ headerShown: false }} />
-					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+					<Stack.Screen name="(public)" options={{ headerShown: false }} />
+					<Stack.Screen name="(protected)" options={{ headerShown: false }} />
+					<Stack.Screen name="(common)" options={{ headerShown: false }} />
 					<Stack.Screen name="+not-found" />
 				</Stack>
 				<StatusBar style={statusBarStyle} />
