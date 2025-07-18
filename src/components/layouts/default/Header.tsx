@@ -1,4 +1,3 @@
-import type { TextRef } from "@rn-primitives/types";
 import { useNavigation } from "expo-router";
 import * as React from "react";
 import { useEffect } from "react";
@@ -91,7 +90,7 @@ export function Header() {
 					style={StyleSheet.absoluteFill}
 				/>
 			)}
-			<View className="flex-row items-center justify-between px-4 py-2 border-b border-border bg-background relative z-50">
+			<View className="flex-row items-center justify-between px-4 py-0 border-b border-border bg-background relative z-50">
 				{/* Logo Section */}
 				<Pressable
 					onPress={() => {
@@ -200,10 +199,17 @@ export function Header() {
 	);
 }
 
-const ListItem = React.forwardRef<
-	TextRef,
-	React.ComponentPropsWithoutRef<typeof Text> & { title: string; href: string }
->(({ className, title, children, ...props }, ref) => {
+const ListItem = ({
+	className,
+	title,
+	children,
+	ref,
+	...props
+}: React.ComponentPropsWithoutRef<typeof Text> & {
+	title: string;
+	href: string;
+	ref?: React.Ref<View>;
+}) => {
 	// TODO: add navigationn to `href` on `NavigationMenuLink` onPress
 	return (
 		<View role="listitem">
@@ -224,5 +230,6 @@ const ListItem = React.forwardRef<
 			</NavigationMenuLink>
 		</View>
 	);
-});
+};
+
 ListItem.displayName = "ListItem";
