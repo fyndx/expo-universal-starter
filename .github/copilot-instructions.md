@@ -1,29 +1,39 @@
 # AI Coding Agent Instructions
 
 ## Project Overview
-This is a universal React Native app built with Expo Router that runs on iOS, Android, and Web. It uses react-native-unistyles v3 for styling and Better Auth for authentication.
+This is a universal React Native app built with Expo Router that runs on iOS, Android, and Web. It uses react-native-reusables with NativeWind for styling and Better Auth for authentication.
 
 ## Key Architecture Patterns
 
-### Styling System (react-native-unistyles v3)
-- **Theme Configuration**: Themes are defined in `theme.ts` using @radix-ui/colors, configured in `unistyles.ts`
-- **Component Patterns**: All UI components use `StyleSheet.create((theme) => ({...}))` with variant support
-- **Variant Implementation**: Use `UnistylesVariants<typeof styles>` for type-safe props after stylesheet definition
-- **Theme Access**: Use `useUnistyles()` hook to access theme in components without styles
+### Styling System (NativeWind + react-native-reusables)
+- **Theme Configuration**: Themes are configured using Tailwind CSS configuration in `tailwind.config.js` with CSS custom properties
+- **Component Patterns**: UI components use NativeWind's `className` prop with Tailwind utility classes
+- **Reusable Components**: Built on top of react-native-reusables which provides unstyled, accessible components
+- **Variant Implementation**: Use `cva` (class-variance-authority) for creating variant-based component APIs
+- **Theme Access**: Access theme values through CSS custom properties and Tailwind utilities
 
 Example component pattern:
 ```tsx
-const styles = StyleSheet.create((theme) => ({
-  button: {
-    backgroundColor: theme.colors.primary,
-    variants: {
-      variant: { primary: {...}, secondary: {...} },
-      size: { sm: {...}, lg: {...} }
-    }
-  }
-}));
+import { cva, type VariantProps } from "class-variance-authority";
+import { Pressable } from "react-native";
 
-type Props = UnistylesVariants<typeof styles> & PressableProps;
+const buttonVariants = cva(
+  "flex items-center justify-center rounded-md",
+  {
+    variants: {
+      variant: {
+        primary: "bg-primary text-primary-foreground",
+        secondary: "bg-secondary text-secondary-foreground",
+      },
+      size: {
+        sm: "h-9 px-3",
+        lg: "h-11 px-8",
+      },
+    },
+  }
+);
+
+type ButtonProps = VariantProps<typeof buttonVariants> & PressableProps;
 ```
 
 ### Authentication (Better Auth)
@@ -42,7 +52,8 @@ type Props = UnistylesVariants<typeof styles> & PressableProps;
 - **Platform Checks**: Use `Platform.OS` and `process.env.EXPO_OS` for conditional logic
 - **Icons**: IconSymbol component maps SF Symbols (iOS) to Material Icons (other platforms)
 - **Navigation**: Tab bar uses platform-specific blur effects via conditional components
-- **Responsive**: Breakpoints defined in `breakpoints.ts`, used in unistyles responsive syntax
+- **Responsive**: Use Tailwind's responsive prefixes (`sm:`, `md:`, `lg:`) and NativeWind's responsive utilities
+- **Platform-Specific Styles**: Use `web:` prefix for web-only styles, and conditional rendering for native-specific components
 
 ## Development Workflow
 
@@ -58,26 +69,26 @@ npm run reset-project      # Reset to blank starter
 
 ### Component Creation Guidelines
 1. **UI Components**: Place in `src/components/ui/` with proper TypeScript interfaces
-2. **Styling**: Always use react-native-unistyles v3 syntax with theme access
-3. **Variants**: Define variants in stylesheet, extract types with `UnistylesVariants`
+2. **Styling**: Always use NativeWind's `className` prop with Tailwind utility classes
+3. **Variants**: Define variants using `cva` (class-variance-authority) for type-safe component APIs
 4. **Platform Support**: Consider all platforms (iOS/Android/Web) when using native APIs
 5. **Authentication**: Use `authClient` hooks for auth state management
 
 ### Theme Customization
-- **Colors**: Extend theme colors in `theme.ts` using Radix UI color system
-- **Spacing**: Use `theme.padding(n)` and `theme.gap(n)` functions for consistent spacing
-- **Typography**: Access via `theme.fontSize`, `theme.fontWeight`, etc.
-- **Responsive**: Use breakpoint objects `{ xs: value, sm: value }` in styles
+- **Colors**: Define theme colors in `tailwind.config.js` using CSS custom properties
+- **Spacing**: Use Tailwind's spacing utilities (`p-4`, `m-2`, `gap-3`, etc.)
+- **Typography**: Use Tailwind's typography utilities (`text-lg`, `font-semibold`, etc.)
+- **Dark Mode**: Toggle between light/dark themes using `className` conditionals and CSS variables
 
 ### Common Gotchas
-- Import unistyles config in app entry: `import "./unistyles"` in `index.ts`
-- UnistylesVariants type must be defined AFTER the stylesheet
-- Better Auth requires platform-specific plugin setup for native vs web
-- Expo Router requires specific file naming conventions for routing
-- Web-specific styles use `_web` key with pseudo-selectors like `_hover`
+- **NativeWind Setup**: Ensure `global.css` is properly imported in the app entry point
+- **Class Name Conflicts**: Use platform-specific prefixes (`web:`, `ios:`, `android:`) for conditional styles
+- **Better Auth**: Requires platform-specific plugin setup for native vs web storage
+- **Expo Router**: Requires specific file naming conventions for routing
+- **Component Imports**: Import UI components from `@/src/components/ui/` using path aliases
 
 ### Build Considerations
-- EAS Build configured for preview/production deployments
-- Metro configured for CSS support, package exports, and .mjs files
-- Babel plugin for unistyles processes imports and enables optimizations
-- TypeScript paths configured for `@/*` imports from project root
+- **EAS Build**: Configured for preview/production deployments
+- **Metro Config**: Configured for CSS support, package exports, and .mjs files
+- **NativeWind**: Babel and Metro plugins configured for Tailwind CSS compilation
+- **TypeScript**: Path aliases configured for `@/*` imports from project root

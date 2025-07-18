@@ -1,123 +1,81 @@
-import type React from "react";
-import { Pressable, type PressableProps, Text } from "react-native";
-import { StyleSheet, type UnistylesVariants } from "react-native-unistyles";
+import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
+import { Pressable } from 'react-native';
+import { cn } from '~/lib/utils';
+import { TextClassContext } from '~/components/ui/text';
 
-type ButtonVariants = UnistylesVariants<typeof styles>;
+const buttonVariants = cva(
+  'group flex items-center justify-center rounded-md web:ring-offset-background web:transition-colors web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2',
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary web:hover:opacity-90 active:opacity-90',
+        destructive: 'bg-destructive web:hover:opacity-90 active:opacity-90',
+        outline:
+          'border border-input bg-background web:hover:bg-accent web:hover:text-accent-foreground active:bg-accent',
+        secondary: 'bg-secondary web:hover:opacity-80 active:opacity-80',
+        ghost: 'web:hover:bg-accent web:hover:text-accent-foreground active:bg-accent',
+        link: 'web:underline-offset-4 web:hover:underline web:focus:underline',
+      },
+      size: {
+        default: 'h-10 px-4 py-2 native:h-12 native:px-5 native:py-3',
+        sm: 'h-9 rounded-md px-3',
+        lg: 'h-11 rounded-md px-8 native:h-14',
+        icon: 'h-10 w-10',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
 
-export type ButtonProps = ButtonVariants & PressableProps;
+const buttonTextVariants = cva(
+  'web:whitespace-nowrap text-sm native:text-base font-medium text-foreground web:transition-colors',
+  {
+    variants: {
+      variant: {
+        default: 'text-primary-foreground',
+        destructive: 'text-destructive-foreground',
+        outline: 'group-active:text-accent-foreground',
+        secondary: 'text-secondary-foreground group-active:text-secondary-foreground',
+        ghost: 'group-active:text-accent-foreground',
+        link: 'text-primary group-active:underline',
+      },
+      size: {
+        default: '',
+        sm: '',
+        lg: 'native:text-lg',
+        icon: '',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
 
-export const Button: React.FC<ButtonProps> = ({
-	variant = "primary",
-	size = "base",
-	disabled = false,
-	children,
-	style,
-	...pressableProps
-}) => {
-	styles.useVariants({
-		variant,
-		disabled: false,
-		size,
-	});
+type ButtonProps = React.ComponentProps<typeof Pressable> & VariantProps<typeof buttonVariants>;
 
-	return (
-		<Pressable
-			style={[styles.button, style]}
-			disabled={disabled}
-			{...pressableProps}
-		>
-			{typeof children === "string" ? (
-				<Text style={styles.label}>{children}</Text>
-			) : (
-				children
-			)}
-		</Pressable>
-	);
-};
+function Button({ ref, className, variant, size, ...props }: ButtonProps) {
+  return (
+    <TextClassContext.Provider
+      value={buttonTextVariants({ variant, size, className: 'web:pointer-events-none' })}
+    >
+      <Pressable
+        className={cn(
+          props.disabled && 'opacity-50 web:pointer-events-none',
+          buttonVariants({ variant, size, className })
+        )}
+        ref={ref}
+        role='button'
+        {...props}
+      />
+    </TextClassContext.Provider>
+  );
+}
 
-const styles = StyleSheet.create((theme) => ({
-	button: {
-		alignItems: "center",
-		justifyContent: "center",
-		gap: theme.gap(1),
-		borderRadius: theme.colors.borderColor,
-		// variants grouped here
-		variants: {
-			variant: {
-				destructive: {
-					backgroundColor: theme.colors.destructive,
-				},
-				outline: {
-					backgroundColor: theme.colors.background,
-					borderWidth: 1,
-					borderColor: theme.colors.borderColor,
-				},
-				secondary: {
-					backgroundColor: theme.colors.secondary,
-				},
-				ghost: {
-					backgroundColor: theme.colors.transparent,
-				},
-				link: {
-					backgroundColor: theme.colors.transparent,
-				},
-				primary: {
-					backgroundColor: theme.colors.primary,
-				},
-				default: {
-					backgroundColor: theme.colors.primary,
-				},
-			},
-			size: {
-				default: {
-					height: 40,
-					paddingHorizontal: 16,
-				},
-				sm: {
-					height: 36,
-					paddingHorizontal: 12,
-				},
-				lg: {
-					height: 44,
-					paddingHorizontal: 24,
-				},
-				base: {
-					height: 40,
-					paddingHorizontal: 16,
-				},
-			},
-			disabled: {
-				true: {
-					opacity: 0.5,
-				},
-			},
-		},
-		// compound variants
-		compoundVariants: [],
-	},
-	label: {
-		variants: {
-			variant: {
-				default: { color: theme.colors.onPrimary },
-				primary: { color: theme.colors.onPrimary },
-				destructive: { color: theme.colors.onDestructive },
-				outline: { color: theme.colors.text },
-				secondary: { color: theme.colors.onSecondary },
-				ghost: { color: theme.colors.text },
-				link: {
-					color: theme.colors.primary,
-					textDecorationLine: "underline",
-				},
-			},
-			size: {
-				default: { fontSize: theme.fontSize.base },
-				sm: { fontSize: theme.fontSize.sm },
-				base: { fontSize: theme.fontSize.base },
-				lg: { fontSize: theme.fontSize.lg },
-			},
-			disabled: {
-				true: {},
-			},
-		},
-	},
-}));
+export { Button, buttonTextVariants, buttonVariants };
+export type { ButtonProps };
