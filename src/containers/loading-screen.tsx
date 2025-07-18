@@ -1,7 +1,7 @@
 import { Platform, View } from "react-native";
 import { cn } from "~/lib/utils";
-import { ActivityIndicator } from "./activity-indicator";
-import { Text } from "./text";
+import { ActivityIndicator } from "../components/ui/activity-indicator";
+import { Text } from "../components/ui/text";
 
 interface LoadingScreenProps {
 	message?: string;
