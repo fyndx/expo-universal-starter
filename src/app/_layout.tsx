@@ -11,7 +11,6 @@ import { useLayoutEffect } from "react";
 import { Appearance, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppSetup } from "~/hooks/useAppSetup";
-import { authClient } from "~/lib/auth-client";
 import { setAndroidNavigationBar } from "../lib/android-navigation-bar";
 
 export {
@@ -28,9 +27,8 @@ const usePlatformSpecificSetup = Platform.select({
 export default function RootLayout() {
 	usePlatformSpecificSetup();
 	const { ready, theme, statusBarStyle } = useAppSetup();
-	const { isPending, data } = authClient.useSession();
 
-	if (!ready && isPending) {
+	if (!ready) {
 		// Wait for fonts and stored color scheme to load
 		return null;
 	}
@@ -39,12 +37,8 @@ export default function RootLayout() {
 		<SafeAreaView style={{ flex: 1, flexDirection: "column" }}>
 			<ThemeProvider value={theme}>
 				<Stack>
-					<Stack.Protected guard={!!data}>
-						<Stack.Screen name="(protected)" options={{ headerShown: false }} />
-					</Stack.Protected>
-					<Stack.Protected guard={!data}>
-						<Stack.Screen name="(public)" options={{ headerShown: false }} />
-					</Stack.Protected>
+					<Stack.Screen name="(protected)" options={{ headerShown: false }} />
+					<Stack.Screen name="(public)" options={{ headerShown: false }} />
 					<Stack.Screen name="index" options={{ headerShown: false }} />
 					<Stack.Screen name="(common)" options={{ headerShown: false }} />
 					<Stack.Screen name="+not-found" />

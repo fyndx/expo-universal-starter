@@ -1,5 +1,22 @@
-import { Slot } from "expo-router";
+import { Redirect, Slot } from "expo-router";
+import { Header } from "~/components/layouts/default/Header";
+import { authClient } from "~/lib/auth-client";
 
 export default function ProtectedLayout() {
-	return <Slot />;
+	const { isPending, data } = authClient.useSession();
+	if (isPending) {
+		// Wait for the authentication state to resolve
+		return null;
+	}
+
+	if (!data) {
+		return <Redirect href="/sign-in" />;
+	}
+
+	return (
+		<>
+			<Header />
+			<Slot />
+		</>
+	);
 }
