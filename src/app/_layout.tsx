@@ -9,7 +9,9 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useLayoutEffect } from "react";
 import { Appearance, Platform } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { BottomSheetModalProvider } from "~/components/ui/bottom-sheet";
 import { useAppSetup } from "~/hooks/useAppSetup";
 import { setAndroidNavigationBar } from "../lib/android-navigation-bar";
 
@@ -34,20 +36,27 @@ export default function RootLayout() {
 	}
 
 	return (
-		<SafeAreaView style={{ flex: 1, flexDirection: "column" }}>
-			<ThemeProvider value={theme}>
-				<Stack>
-					<Stack.Screen name="(protected)" options={{ headerShown: false }} />
-					<Stack.Screen name="(public)" options={{ headerShown: false }} />
-					<Stack.Screen name="index" options={{ headerShown: false }} />
-					<Stack.Screen name="(common)" options={{ headerShown: false }} />
-					<Stack.Screen name="+not-found" />
-				</Stack>
-				<StatusBar style={statusBarStyle} />
-			</ThemeProvider>
-			<Toaster />
-			<PortalHost name="root-portal" />
-		</SafeAreaView>
+		<GestureHandlerRootView style={{ flex: 1 }}>
+			<SafeAreaView style={{ flex: 1, flexDirection: "column" }}>
+				<ThemeProvider value={theme}>
+					<BottomSheetModalProvider>
+						<Stack>
+							<Stack.Screen
+								name="(protected)"
+								options={{ headerShown: false }}
+							/>
+							<Stack.Screen name="(public)" options={{ headerShown: false }} />
+							<Stack.Screen name="index" options={{ headerShown: false }} />
+							<Stack.Screen name="(common)" options={{ headerShown: false }} />
+							<Stack.Screen name="+not-found" />
+						</Stack>
+					</BottomSheetModalProvider>
+					<StatusBar style={statusBarStyle} />
+					<Toaster />
+					<PortalHost name="root-portal" />
+				</ThemeProvider>
+			</SafeAreaView>
+		</GestureHandlerRootView>
 	);
 }
 
