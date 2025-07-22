@@ -35,7 +35,7 @@ export default function SignIn() {
 				// TODO: Toast Error
 				return;
 			}
-			router.replace("/");
+			router.replace("/home");
 		} catch (error) {
 			// TODO: Handle unexpected errors
 			console.error("Login error:", error);
