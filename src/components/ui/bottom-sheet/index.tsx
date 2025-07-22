@@ -8,23 +8,26 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 import { cssInterop } from "nativewind";
 import type React from "react";
-import { forwardRef, Fragment } from "react";
+import { Fragment } from "react";
 import type { BottomSheetProps, BSHandleProps } from "./types";
 
 const BottomSheetTrigger = Fragment;
 
 type BottomSheetModal = BSModalType;
 
-const BottomSheetModal = forwardRef<
-	BSModal,
-	BottomSheetProps & { children: React.ReactNode; isOpen?: boolean }
->(({ children, ...rest }: BottomSheetProps, ref) => {
+const BottomSheetModal: React.FC<
+	BottomSheetProps & {
+		children: React.ReactNode;
+		isOpen?: boolean;
+		ref?: React.Ref<BSModal>;
+	}
+> = ({ children, ref, ...rest }) => {
 	return (
 		<BSModal ref={ref} {...rest}>
 			{children}
 		</BSModal>
 	);
-});
+};
 
 const BottomSheetView = cssInterop(BSView, {
 	className: "style",
