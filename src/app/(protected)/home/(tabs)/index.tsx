@@ -1,6 +1,7 @@
 import { authClient } from "@/src/lib/auth-client";
 import { router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "~/components/ui/text";
 
 export default function HomeScreen() {
 	const { data: session } = authClient.useSession();

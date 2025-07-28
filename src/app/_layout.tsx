@@ -46,6 +46,10 @@ export default function RootLayout() {
 								options={{ headerShown: false }}
 							/>
 							<Stack.Screen name="(public)" options={{ headerShown: false }} />
+							<Stack.Screen
+								name="(public)/(auth)"
+								options={{ headerShown: false }}
+							/>
 							<Stack.Screen name="index" options={{ headerShown: false }} />
 							<Stack.Screen name="(common)" options={{ headerShown: false }} />
 							<Stack.Screen name="+not-found" />
