@@ -1,6 +1,6 @@
-import { useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 import { useRef } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import { ActivityIndicator } from "~/components/ui/activity-indicator";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
@@ -8,59 +8,120 @@ import {
 	BottomSheetView,
 } from "~/components/ui/bottom-sheet/index";
 import { Button } from "~/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { Text } from "~/components/ui/text";
 import { authClient } from "~/lib/auth-client";
 import { Menu } from "~/lib/icons/Menu";
 
 export const HeaderUser = () => {
 	const { isPending, data, error } = authClient.useSession();
-	const { navigate } = useNavigation();
+	const { push } = useRouter();
 	const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
 	return (
 		<>
 			<View className="flex flex-row items-center justify-between gap-2">
+				{/* Tablet and Desktop */}
 				<View className="hidden md:flex">
 					{isPending && <ActivityIndicator />}
 					{data && !isPending && (
-						<Avatar alt={data?.user.name ?? "User"}>
-							<AvatarImage source={{ uri: data?.user?.image ?? undefined }} />
-							<AvatarFallback>
-								<Text>{data?.user?.name.charAt(0) ?? "U"}</Text>
-							</AvatarFallback>
-						</Avatar>
+						<DropdownMenu>
+							<DropdownMenuTrigger>
+								<Avatar alt={data?.user.name ?? "User"}>
+									<AvatarImage
+										source={{ uri: data?.user?.image ?? undefined }}
+									/>
+									<AvatarFallback>
+										<Text>{data?.user?.name.charAt(0) ?? "U"}</Text>
+									</AvatarFallback>
+								</Avatar>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent
+								insets={{ right: 16, top: 8, bottom: 8, left: 16 }}
+								className="w-64 native:w-72 mt-1"
+							>
+								<DropdownMenuLabel className="flex flex-col items-start">
+									<Text className="text-lg font-semibold">
+										{data?.user.name}
+									</Text>
+									<Text className="text-sm text-muted-foreground">
+										{data?.user.email}
+									</Text>
+								</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								<Button
+									variant="outline"
+									size="sm"
+									onPress={() => {
+										authClient.signOut();
+									}}
+								>
+									<Text>Logout</Text>
+								</Button>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					)}
 					{!data && !isPending && (
 						<Button
 							variant="outline"
 							size="sm"
 							onPress={() => {
-								navigate("/sign-in");
+								push("/sign-in");
 							}}
 						>
 							<Text>Login</Text>
 						</Button>
 					)}
 				</View>
+				{/* Mobile */}
 				<div className="flex mobile-only">
-					<Button
-						onPress={() => bottomSheetModalRef.current?.present()}
-						variant={"ghost"}
-					>
-						<Menu className="text-base text-foreground" />
-					</Button>
+					{!isPending && !data && (
+						<Button
+							onPress={() => bottomSheetModalRef.current?.present()}
+							variant={"ghost"}
+						>
+							<Menu className="text-base text-foreground" />
+						</Button>
+					)}
+					{data && !isPending && (
+						<Pressable onPress={() => bottomSheetModalRef.current?.present()}>
+							<Avatar alt={data?.user.name ?? "User"}>
+								<AvatarImage source={{ uri: data?.user?.image ?? undefined }} />
+								<AvatarFallback>
+									<Text>{data?.user?.name.charAt(0) ?? "U"}</Text>
+								</AvatarFallback>
+							</Avatar>
+						</Pressable>
+					)}
 				</div>
 			</View>
 			<BottomSheetModal ref={bottomSheetModalRef}>
 				<BottomSheetView className="bg-background p-4">
 					{data ? (
-						<View className="bg-background p-4">
-							<Text>Welcome, {data.user.name}</Text>
-							{/* Add logout functionality */}
+						<View className="bg-background p-4 gap-2">
+							<Text className="text-lg font-semibold">{data?.user.name}</Text>
+							<Text className="text-sm text-muted-foreground">
+								{data?.user.email}
+							</Text>
+							<Button
+								variant="outline"
+								size="sm"
+								onPress={() => {
+									authClient.signOut();
+								}}
+							>
+								<Text>Logout</Text>
+							</Button>
 						</View>
 					) : (
 						<View className="p-4">
-							<Button onPress={() => navigate("/sign-in")}>
+							<Button onPress={() => push("/sign-in")}>
 								<Text>Login</Text>
 							</Button>
 						</View>
