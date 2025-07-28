@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeToggle } from "~/components/ThemeToggle";
-import { Button } from "~/components/ui/button";
 import {
 	NavigationMenu,
 	NavigationMenuContent,
@@ -15,6 +14,7 @@ import {
 	navigationMenuTriggerStyle,
 } from "~/components/ui/navigation-menu";
 import { Text } from "~/components/ui/text";
+import { HeaderUser } from "~/containers/core/HeaderUser";
 import { Sparkles } from "~/lib/icons/Sparkles";
 import { cn } from "~/lib/utils";
 
@@ -105,7 +105,11 @@ export function Header() {
 				</Pressable>
 
 				{/* Navigation Menu - Center */}
-				<NavigationMenu value={value} onValueChange={setValue}>
+				<NavigationMenu
+					value={value}
+					onValueChange={setValue}
+					className="hidden md:flex"
+				>
 					<NavigationMenuList>
 						<NavigationMenuItem value="getting-started">
 							<NavigationMenuTrigger>
@@ -184,15 +188,7 @@ export function Header() {
 				{/* Right Section - Theme Toggle & Login */}
 				<View className="flex-row items-center gap-2">
 					<ThemeToggle />
-					<Button
-						variant="outline"
-						size="sm"
-						onPress={() => {
-							// TODO: Navigate to login or handle auth
-						}}
-					>
-						<Text>Login</Text>
-					</Button>
+					<HeaderUser />
 				</View>
 			</View>
 		</>
