@@ -41,17 +41,8 @@ export default function RootLayout() {
 				<ThemeProvider value={theme}>
 					<BottomSheetModalProvider>
 						<Stack>
-							<Stack.Screen
-								name="(protected)"
-								options={{ headerShown: false }}
-							/>
 							<Stack.Screen name="(public)" options={{ headerShown: false }} />
-							<Stack.Screen
-								name="(public)/(auth)"
-								options={{ headerShown: false }}
-							/>
 							<Stack.Screen name="index" options={{ headerShown: false }} />
-							<Stack.Screen name="(common)" options={{ headerShown: false }} />
 							<Stack.Screen name="+not-found" />
 						</Stack>
 					</BottomSheetModalProvider>

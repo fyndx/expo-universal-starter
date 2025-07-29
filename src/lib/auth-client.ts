@@ -1,8 +1,9 @@
 import { expoClient } from "@better-auth/expo/client";
+import { adminClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import * as SecureStore from "expo-secure-store";
 
-const plugins = [];
+const plugins = [adminClient()];
 
 if (process.env.EXPO_OS !== "web") {
 	plugins.push(

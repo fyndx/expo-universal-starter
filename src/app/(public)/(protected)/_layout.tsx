@@ -1,5 +1,5 @@
 import { Redirect, Slot } from "expo-router";
-import { Header } from "~/components/layouts/default/Header";
+import { Header } from "~/components/layouts/protected/Header";
 import { LoadingScreen } from "~/containers/loading-screen";
 import { authClient } from "~/lib/auth-client";
 
@@ -11,7 +11,7 @@ export default function ProtectedLayout() {
 	}
 
 	if (!data) {
-		return <Redirect href="/sign-in" />;
+		return <Redirect href="/auth/sign-in" />;
 	}
 
 	return (

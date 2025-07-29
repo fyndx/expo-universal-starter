@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { type Href, useRouter } from "expo-router";
 import { useRef } from "react";
 import { Pressable, View } from "react-native";
 import { ActivityIndicator } from "~/components/ui/activity-indicator";
@@ -11,6 +11,7 @@ import { Button } from "~/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
@@ -18,6 +19,15 @@ import {
 import { Text } from "~/components/ui/text";
 import { authClient } from "~/lib/auth-client";
 import { Menu } from "~/lib/icons/Menu";
+import { Shield } from "~/lib/icons/Shield";
+
+const Options = [
+	{
+		label: "Admin",
+		icon: <Shield size={16} />,
+		path: "/admin/manage-users",
+	},
+];
 
 export const HeaderUser = () => {
 	const { isPending, data, error } = authClient.useSession();
@@ -44,7 +54,7 @@ export const HeaderUser = () => {
 							</DropdownMenuTrigger>
 							<DropdownMenuContent
 								insets={{ right: 16, top: 8, bottom: 8, left: 16 }}
-								className="w-64 native:w-72 mt-1"
+								className="w-64 native:w-72 mt-1 gap-2"
 							>
 								<DropdownMenuLabel className="flex flex-col items-start">
 									<Text className="text-lg font-semibold">
@@ -55,8 +65,20 @@ export const HeaderUser = () => {
 									</Text>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
+								{Options.map((option) => (
+									<DropdownMenuItem
+										key={option.label}
+										className="text-muted-foreground hover:text-primary focus:text-primary"
+										onPress={() => {
+											push(option.path as Href);
+										}}
+									>
+										{option.icon}
+										<Text>{option.label}</Text>
+									</DropdownMenuItem>
+								))}
 								<Button
-									variant="outline"
+									variant="destructive"
 									size="sm"
 									onPress={() => {
 										authClient.signOut();
@@ -72,7 +94,7 @@ export const HeaderUser = () => {
 							variant="outline"
 							size="sm"
 							onPress={() => {
-								push("/sign-in");
+								push("/auth/sign-in");
 							}}
 						>
 							<Text>Login</Text>
@@ -109,8 +131,23 @@ export const HeaderUser = () => {
 							<Text className="text-sm text-muted-foreground">
 								{data?.user.email}
 							</Text>
+							{Options.map((option) => (
+								<Button
+									key={option.label}
+									variant="ghost"
+									size="sm"
+									onPress={() => {
+										bottomSheetModalRef.current?.dismiss();
+										push(option.path as Href);
+									}}
+									className="flex-row gap-2 text-muted-foreground hover:text-primary focus:text-primary"
+								>
+									{option.icon}
+									<Text>{option.label}</Text>
+								</Button>
+							))}
 							<Button
-								variant="outline"
+								variant="destructive"
 								size="sm"
 								onPress={() => {
 									authClient.signOut();
@@ -121,7 +158,7 @@ export const HeaderUser = () => {
 						</View>
 					) : (
 						<View className="p-4">
-							<Button onPress={() => push("/sign-in")}>
+							<Button onPress={() => push("/auth/sign-in")}>
 								<Text>Login</Text>
 							</Button>
 						</View>
