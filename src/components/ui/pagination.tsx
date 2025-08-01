@@ -1,5 +1,5 @@
-import { View } from "@rn-primitives/slot";
 import * as React from "react";
+import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { cn } from "~/lib/utils";
 
@@ -28,7 +28,7 @@ export const Pagination = React.memo(
 		return (
 			<View className="items-center py-4 ios:pb-0 space-y-3">
 				<Text className="text-sm text-muted-foreground">
-					{currentItemsCount} {itemText} of {totalItems} total
+					{`${currentItemsCount} ${itemText} of ${totalItems} total`}
 				</Text>
 
 				{totalPages > 1 && (

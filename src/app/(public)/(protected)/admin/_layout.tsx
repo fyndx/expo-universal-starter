@@ -9,8 +9,6 @@ export default function AdminLayout() {
 		return <LoadingScreen />;
 	}
 
-	console.log("AdminLayout data", data);
-
 	if (!data) {
 		return <Redirect href="/auth/sign-in" />;
 	}
