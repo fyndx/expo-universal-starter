@@ -56,6 +56,32 @@ export interface UserManagementError {
 }
 
 /**
+ * Query parameters for Better Auth admin listUsers API
+ */
+interface ListUsersQueryParams {
+	/** Maximum number of users to return */
+	limit?: string | number;
+	/** Number of users to skip */
+	offset?: string | number;
+	/** Field to sort by */
+	sortBy?: string;
+	/** Sort direction */
+	sortDirection?: "asc" | "desc";
+	/** Search value when filtering */
+	searchValue?: string;
+	/** Field to search in */
+	searchField?: "name" | "email";
+	/** Search operator */
+	searchOperator?: "contains" | "starts_with" | "ends_with";
+	/** Field to filter by */
+	filterField?: string;
+	/** Value to filter by */
+	filterValue?: string | number | boolean;
+	/** Filter operator */
+	filterOperator?: "eq" | "ne" | "lt" | "lte" | "gt" | "gte";
+}
+
+/**
  * User list data structure returned from the API
  */
 export interface UserListData {
@@ -92,6 +118,15 @@ interface IManageUsersListModel {
 	error?: UserManagementError | null;
 	/** Pagination settings and current state */
 	metadata: PaginationMetadata;
+	/** Filters applied to the user list */
+	filters: {
+		/** Search term for user lookup */
+		search: string;
+		/** Selected user role for filtering */
+		role: string;
+		/** Selected user status for filtering */
+		status: string;
+	};
 }
 
 /**
@@ -133,6 +168,11 @@ export class ManageUsersListModel {
 				pageSize: ManageUsersListModel.DEFAULT_PAGE_SIZE,
 				currentPage: ManageUsersListModel.DEFAULT_PAGE_NUMBER,
 			},
+			filters: {
+				search: "",
+				role: "all",
+				status: "all",
+			},
 		});
 	}
 
@@ -172,12 +212,43 @@ export class ManageUsersListModel {
 				(currentState.metadata.currentPage - 1) *
 				currentState.metadata.pageSize;
 
+			// Prepare filters for the API request
+			const { search, role, status } = currentState.filters;
+
+			// Build query parameters for Better Auth admin endpoint
+			const queryParams: ListUsersQueryParams = {
+				limit: currentState.metadata.pageSize,
+				offset,
+				sortBy: "createdAt",
+				sortDirection: "desc",
+			};
+
+			// Add search parameters if search term is provided
+			if (search) {
+				queryParams.searchValue = search;
+				queryParams.searchField = "name"; // Search by name field
+				queryParams.searchOperator = "contains";
+			}
+
+			// Add role filter if not "all"
+			if (role !== "all") {
+				queryParams.filterField = "role";
+				queryParams.filterValue = role;
+				queryParams.filterOperator = "eq";
+			}
+
+			// Add status filter if not "all" (for role filter, we need to use a different approach)
+			// Note: If we need both role and status filters, we might need to handle this differently
+			// as the API might not support multiple filters simultaneously
+			if (status !== "all" && role === "all") {
+				queryParams.filterField = "status";
+				queryParams.filterValue = status;
+				queryParams.filterOperator = "eq";
+			}
+
 			// Make API request to Better Auth admin endpoint
 			const { data, error } = await authClient.admin.listUsers({
-				query: {
-					limit: currentState.metadata.pageSize,
-					offset,
-				},
+				query: queryParams,
 			});
 
 			// Handle API-level errors
@@ -267,5 +338,55 @@ export class ManageUsersListModel {
 			this.obs.metadata.currentPage.set(page);
 			await this.fetchUsers();
 		}
+	};
+
+	/**
+	 * Sets the search filter and resets the current page to 1.
+	 * Automatically fetches users with the new filter applied.
+	 *
+	 * @param search - The search term to apply
+	 */
+	setSearchFilter = (search: string) => {
+		this.obs.filters.search.set(search);
+		this.obs.metadata.currentPage.set(1); // Reset to first page when searching
+		this.fetchUsers();
+	};
+
+	/**
+	 * Sets the role filter and resets the current page to 1.
+	 * Automatically fetches users with the new filter applied.
+	 *
+	 * @param role - The user role to filter by
+	 */
+	setRoleFilter = (role: string) => {
+		this.obs.filters.role.set(role);
+		this.obs.metadata.currentPage.set(1); // Reset to first page when filtering
+		this.fetchUsers();
+	};
+
+	/**
+	 * Sets the status filter and resets the current page to 1.
+	 * Automatically fetches users with the new filter applied.
+	 *
+	 * @param status - The user status to filter by
+	 */
+	setStatusFilter = (status: string) => {
+		this.obs.filters.status.set(status);
+		this.obs.metadata.currentPage.set(1); // Reset to first page when filtering
+		this.fetchUsers();
+	};
+
+	/**
+	 * Clears all filters and resets the current page to 1.
+	 * Automatically fetches users with no filters applied.
+	 */
+	clearFilters = () => {
+		this.obs.filters.set({
+			search: "",
+			role: "all",
+			status: "all",
+		});
+		this.obs.metadata.currentPage.set(1);
+		this.fetchUsers();
 	};
 }

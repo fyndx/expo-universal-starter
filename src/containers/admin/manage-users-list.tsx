@@ -5,6 +5,7 @@ import { ScrollView, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { UserTableHeader } from "~/components/admin/user-table-header";
 import { UserTableRow } from "~/components/admin/user-table-row";
+import { UsersListFilters } from "~/components/admin/users-list-filters";
 import { Pagination } from "~/components/ui/pagination";
 import { Table, TableBody, TableHeader } from "~/components/ui/table";
 import { Text } from "~/components/ui/text";
@@ -55,6 +56,9 @@ export const UsersList = observer(({ model }: UsersListProps) => {
 		<View className="flex-1 p-4">
 			<Text className="text-2xl font-bold mb-4">Manage Users</Text>
 
+			{/* Search and Filters */}
+			<UsersListFilters model={model} />
+
 			<ScrollView
 				horizontal
 				bounces={false}
@@ -72,8 +76,14 @@ export const UsersList = observer(({ model }: UsersListProps) => {
 								paddingBottom: insets.bottom,
 							}}
 							showsVerticalScrollIndicator={false}
-							keyExtractor={(item) => item.id}
-							renderItem={({ item: user, index }) => (
+							keyExtractor={(item: any) => item.id}
+							renderItem={({
+								item: user,
+								index,
+							}: {
+								item: any;
+								index: number;
+							}) => (
 								<UserTableRow
 									user={user}
 									index={index}
