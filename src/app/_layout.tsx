@@ -5,12 +5,11 @@ import { useIsomorphicLayoutEffect } from "@/src/hooks/useIsomorphicLayout";
 import { Toaster } from "@/src/lib/sonner/sonner";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
-import { Stack } from "expo-router";
+import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useLayoutEffect } from "react";
 import { Appearance, Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { BottomSheetModalProvider } from "~/components/ui/bottom-sheet";
 import { useAppSetup } from "~/hooks/useAppSetup";
 import { setAndroidNavigationBar } from "../lib/android-navigation-bar";
@@ -26,6 +25,9 @@ const usePlatformSpecificSetup = Platform.select({
 	default: noop,
 });
 
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
+
 export default function RootLayout() {
 	usePlatformSpecificSetup();
 	const { ready, theme, statusBarStyle } = useAppSetup();
@@ -37,20 +39,18 @@ export default function RootLayout() {
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
-			<SafeAreaView style={{ flex: 1, flexDirection: "column" }}>
-				<ThemeProvider value={theme}>
-					<BottomSheetModalProvider>
-						<Stack>
-							<Stack.Screen name="(public)" options={{ headerShown: false }} />
-							<Stack.Screen name="index" options={{ headerShown: false }} />
-							<Stack.Screen name="+not-found" />
-						</Stack>
-					</BottomSheetModalProvider>
-					<StatusBar style={statusBarStyle} />
-					<Toaster />
-					<PortalHost name="root-portal" />
-				</ThemeProvider>
-			</SafeAreaView>
+			<ThemeProvider value={theme}>
+				<BottomSheetModalProvider>
+					<Stack>
+						<Stack.Screen name="index" options={{ headerShown: false }} />
+						<Stack.Screen name="(public)" options={{ headerShown: false }} />
+						<Stack.Screen name="+not-found" />
+					</Stack>
+				</BottomSheetModalProvider>
+				<StatusBar style={statusBarStyle} />
+				<Toaster />
+				<PortalHost name="root-portal" />
+			</ThemeProvider>
 		</GestureHandlerRootView>
 	);
 }

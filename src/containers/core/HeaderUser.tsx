@@ -102,7 +102,7 @@ export const HeaderUser = () => {
 					)}
 				</View>
 				{/* Mobile */}
-				<div className="flex mobile-only">
+				<div className="flex md:hidden">
 					{!isPending && !data && (
 						<Button
 							onPress={() => bottomSheetModalRef.current?.present()}
