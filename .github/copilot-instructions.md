@@ -42,6 +42,52 @@ type ButtonProps = VariantProps<typeof buttonVariants> & PressableProps;
 - **Session Management**: Use `authClient.useSession()` hook for session state
 - **Auth Flow**: File-based routing with `(auth)` group for sign-in/sign-up screens
 
+### State Management (Legend State)
+- **Observable State**: Use `@legendapp/state` for reactive state management across the app
+- **Model Pattern**: Create class-based models in `src/containers/` for complex state logic
+- **API Integration**: Models handle API calls with observable state for loading, success, and error states
+- **Performance**: Legend State provides fine-grained reactivity with minimal re-renders
+
+Example model pattern:
+```tsx
+import { type Observable, observable } from "@legendapp/state";
+import type { ApiStatus } from "~/utils/api";
+
+export class ExampleModel {
+  obs: Observable<{
+    status: ApiStatus;
+    data?: YourDataType[];
+    error?: ErrorType | null;
+  }>;
+
+  constructor() {
+    this.obs = observable({
+      status: "idle" as ApiStatus,
+    });
+  }
+
+  async fetchData() {
+    this.obs.set({
+      ...this.obs.peek(),
+      status: "loading",
+    });
+
+    try {
+      const response = await apiCall();
+      this.obs.set({
+        status: "success",
+        data: response.data,
+      });
+    } catch (error) {
+      this.obs.set({
+        status: "error",
+        error: error,
+      });
+    }
+  }
+}
+```
+
 ### File Structure & Routing
 - **App Directory**: `src/app/` contains all routes using Expo Router file-based routing
 - **Route Groups**: `(auth)` for authentication screens, `(tabs)` for main app navigation
@@ -73,6 +119,7 @@ npm run reset-project      # Reset to blank starter
 3. **Variants**: Define variants using `cva` (class-variance-authority) for type-safe component APIs
 4. **Platform Support**: Consider all platforms (iOS/Android/Web) when using native APIs
 5. **Authentication**: Use `authClient` hooks for auth state management
+6. **State Management**: Create model classes in `src/containers/` for complex state, use Legend State observables for reactive state
 
 ### Theme Customization
 - **Colors**: Define theme colors in `tailwind.config.js` using CSS custom properties
