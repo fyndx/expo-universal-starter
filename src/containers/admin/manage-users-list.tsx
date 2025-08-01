@@ -72,6 +72,7 @@ export const UsersList = observer(({ model }: UsersListProps) => {
 								paddingBottom: insets.bottom,
 							}}
 							showsVerticalScrollIndicator={false}
+							keyExtractor={(item) => item.id}
 							renderItem={({ item: user, index }) => (
 								<UserTableRow
 									user={user}

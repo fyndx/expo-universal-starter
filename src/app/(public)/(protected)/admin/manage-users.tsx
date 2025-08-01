@@ -1,6 +1,6 @@
 import { useMount } from "@legendapp/state/react";
-import { View } from "@rn-primitives/slot";
 import { useRef } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { UsersList } from "~/containers/admin/manage-users-list";
 import { ManageUsersListModel } from "~/containers/admin/manage-users-list.model";
 
@@ -12,8 +12,8 @@ export default function ManageUsersScreen() {
 	});
 
 	return (
-		<View>
+		<SafeAreaView style={{ flex: 1 }}>
 			<UsersList model={manageUsersListModel$} />
-		</View>
+		</SafeAreaView>
 	);
 }
