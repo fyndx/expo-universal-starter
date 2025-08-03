@@ -45,13 +45,16 @@ type ButtonProps = VariantProps<typeof buttonVariants> & PressableProps;
 ### State Management (Legend State)
 - **Observable State**: Use `@legendapp/state` for reactive state management across the app
 - **Model Pattern**: Create class-based models in `src/models/` with naming convention `feature-name.model.ts` (e.g., `manage-users.model.ts`)
-- **API Integration**: Models handle API calls with observable state for loading, success, and error states
+- **API Integration**: Models handle API calls with observable state for loading, success, and error states. Methods should return `Promise<void>` and update observable status instead of returning boolean values
+- **Side Effects**: Models should handle all side effects including toast notifications, navigation, and form resets. Keep containers focused purely on UI interactions
 - **Performance**: Legend State provides fine-grained reactivity with minimal re-renders
 - **No Hooks**: Avoid using React hooks; use Legend State observables directly for state management
 
 Example model pattern:
 ```tsx
 import { type Observable, observable } from "@legendapp/state";
+import { router } from "expo-router";
+import { toast } from "~/lib/sonner/sonner";
 import type { ApiStatus } from "~/utils/api";
 
 export class ExampleModel {
@@ -67,7 +70,7 @@ export class ExampleModel {
     });
   }
 
-  async fetchData() {
+  async fetchData(): Promise<void> {
     this.obs.set({
       ...this.obs.peek(),
       status: "loading",
@@ -79,11 +82,39 @@ export class ExampleModel {
         status: "success",
         data: response.data,
       });
+      
+      // Handle success side effects
+      toast.success("Data loaded successfully");
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to load data";
       this.obs.set({
         status: "error",
-        error: error,
+        error: errorMessage,
       });
+      
+      // Handle error side effects
+      toast.error(errorMessage);
+    }
+  }
+
+  async createItem(itemData: ItemData): Promise<void> {
+    this.obs.status.set("loading");
+    
+    try {
+      await apiCreateCall(itemData);
+      this.obs.status.set("success");
+      
+      // Handle all side effects in the model
+      toast.success("Item created successfully");
+      this.resetForm();
+      router.back();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to create item";
+      this.obs.set({
+        status: "error",
+        error: errorMessage,
+      });
+      toast.error(errorMessage);
     }
   }
 }
@@ -91,15 +122,20 @@ export class ExampleModel {
 
 Example container pattern:
 ```tsx
-// src/containers/user-management/user-list-container.tsx
+// src/containers/user-management/user-list.tsx
 import { View } from "react-native";
 import { observer } from "@legendapp/state/react";
 import { userManagementModel } from "~/models/user-management.model";
 import { UserCard } from "~/components/ui/user-card";
 import { LoadingSpinner } from "~/components/ui/loading-spinner";
 
-export const UserListContainer = observer(() => {
+export const UserList = observer(() => {
   const { users, status } = userManagementModel.obs.get();
+
+  // Simple event handler - model handles all side effects
+  const handleCreateUser = async () => {
+    await userManagementModel.createUser();
+  };
 
   if (status === "loading") {
     return <LoadingSpinner />;
@@ -110,6 +146,9 @@ export const UserListContainer = observer(() => {
       {users?.map((user) => (
         <UserCard key={user.id} user={user} />
       ))}
+      <Button onPress={handleCreateUser}>
+        Add User
+      </Button>
     </View>
   );
 });
@@ -145,7 +184,7 @@ npm run reset-project      # Reset to blank starter
 
 ### Component Creation Guidelines
 1. **UI Components**: Place in `src/components/ui/` with proper TypeScript interfaces
-2. **Container Components**: Create feature-based containers in `src/containers/[feature-name]/` that encapsulate business logic and can be imported into screens
+2. **Container Components**: Create feature-based containers in `src/containers/[feature-name]/` that encapsulate business logic and can be imported into screens. Name them without "Container" suffix since they're already in containers folder
 3. **Styling**: Always use NativeWind's `className` prop with Tailwind utility classes
 4. **Variants**: Define variants using `cva` (class-variance-authority) for type-safe component APIs
 5. **Platform Support**: Consider all platforms (iOS/Android/Web) when using native APIs
