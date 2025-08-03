@@ -1,6 +1,12 @@
 import * as React from "react";
+import { View } from "react-native";
 import { TableCell, TableRow } from "~/components/ui/table";
 import { Text } from "~/components/ui/text";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 
 interface User {
@@ -10,6 +16,8 @@ interface User {
 	emailVerified: boolean;
 	role?: string;
 	banned: boolean;
+	banReason?: string;
+	banExpires?: string;
 	createdAt: string;
 }
 
@@ -46,11 +54,29 @@ export const UserTableRow = React.memo(
 					<Text className="text-sm capitalize">{user.role || "user"}</Text>
 				</TableCell>
 				<TableCell style={{ width: columnWidths[5] }}>
-					<Text
-						className={`text-sm ${user.banned ? "text-red-600" : "text-green-600"}`}
-					>
-						{user.banned ? "Banned" : "Active"}
-					</Text>
+					{user.banned ? (
+						<View className="gap-1">
+							<Text className="text-sm text-red-600">Banned</Text>
+							{user.banReason && (
+								<Tooltip>
+									<TooltipTrigger>
+										<Text className="text-xs text-red-500">
+											{user.banReason}
+										</Text>
+									</TooltipTrigger>
+									<TooltipContent>
+										<Text>
+											{user.banExpires
+												? `Ban expires: ${new Date(user.banExpires).toLocaleString()}`
+												: "Permanent ban"}
+										</Text>
+									</TooltipContent>
+								</Tooltip>
+							)}
+						</View>
+					) : (
+						<Text className="text-sm text-green-600">Active</Text>
+					)}
 				</TableCell>
 				<TableCell style={{ width: columnWidths[6] }}>
 					<Text className="text-sm text-muted-foreground">—</Text>
