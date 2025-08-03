@@ -1,4 +1,4 @@
-import { AddUser } from "~/containers/user-management/add-user";
+import { AddUser } from "~/containers/admin/add-user.container";
 
 export default function AddUserScreen() {
 	return <AddUser />;

@@ -12,7 +12,7 @@ import {
 	SelectValue,
 } from "~/components/ui/select";
 import { Text } from "~/components/ui/text";
-import type { ManageUsersListModel } from "~/containers/admin/manage-users-list.model";
+import type { ManageUsersListModel } from "~/models/admin/manage-users-list.model";
 
 interface UsersListFiltersProps {
 	model: ManageUsersListModel;

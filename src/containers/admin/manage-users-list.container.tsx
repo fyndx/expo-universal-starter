@@ -10,7 +10,7 @@ import { UsersListFilters } from "~/components/admin/users-list-filters";
 import { Pagination } from "~/components/ui/pagination";
 import { Table, TableBody, TableHeader } from "~/components/ui/table";
 import { Text } from "~/components/ui/text";
-import type { ManageUsersListModel } from "./manage-users-list.model";
+import type { ManageUsersListModel } from "~/models/admin/manage-users-list.model";
 
 interface UsersListProps {
 	model: ManageUsersListModel;

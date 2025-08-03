@@ -44,7 +44,7 @@ type ButtonProps = VariantProps<typeof buttonVariants> & PressableProps;
 
 ### State Management (Legend State)
 - **Observable State**: Use `@legendapp/state` for reactive state management across the app
-- **Model Pattern**: Create class-based models in `src/models/` with naming convention `feature-name.model.ts` (e.g., `manage-users.model.ts`)
+- **Model Pattern**: Create class-based models that mirror the Expo Router structure in `src/models/` with naming convention matching the route path (e.g., `admin/add-user.model.ts` for `admin/add-user` screen)
 - **API Integration**: Models handle API calls with observable state for loading, success, and error states. Methods should return `Promise<void>` and update observable status instead of returning boolean values
 - **Side Effects**: Models should handle all side effects including toast notifications, navigation, and form resets. Keep containers focused purely on UI interactions
 - **Performance**: Legend State provides fine-grained reactivity with minimal re-renders
@@ -122,19 +122,21 @@ export class ExampleModel {
 
 Example container pattern:
 ```tsx
-// src/containers/user-management/user-list.tsx
+Example container pattern:
+```tsx
+// src/containers/admin/add-user.container.tsx
 import { View } from "react-native";
 import { observer } from "@legendapp/state/react";
-import { userManagementModel } from "~/models/user-management.model";
-import { UserCard } from "~/components/ui/user-card";
+import { addUserModel } from "~/models/admin/add-user.model";
+import { UserForm } from "~/components/user-form";
 import { LoadingSpinner } from "~/components/ui/loading-spinner";
 
-export const UserList = observer(() => {
-  const { users, status } = userManagementModel.obs.get();
+export const AddUserContainer = observer(() => {
+  const { status, formData } = addUserModel.obs.get();
 
   // Simple event handler - model handles all side effects
-  const handleCreateUser = async () => {
-    await userManagementModel.createUser();
+  const handleSubmit = async () => {
+    await addUserModel.createUser();
   };
 
   if (status === "loading") {
@@ -143,22 +145,24 @@ export const UserList = observer(() => {
 
   return (
     <View className="flex-1 p-4">
-      {users?.map((user) => (
-        <UserCard key={user.id} user={user} />
-      ))}
-      <Button onPress={handleCreateUser}>
-        Add User
-      </Button>
+      <UserForm 
+        data={formData}
+        onSubmit={handleSubmit}
+      />
     </View>
   );
 });
+```
 ```
 
 ### File Structure & Routing
 - **App Directory**: `src/app/` contains all routes using Expo Router file-based routing
 - **Route Groups**: `(auth)` for authentication screens, `(tabs)` for main app navigation
-- **Components**: UI components in `src/components/ui/` follow React.forwardRef pattern with displayName
-- **Containers**: Feature-based container components in `src/containers/[feature-name]/` that encapsulate business logic and can be imported into screens
+- **Folder Structure Mirrors Routing**: Containers and models should mirror the Expo Router folder structure:
+  - **Containers**: `src/containers/[route-path].container.tsx` (e.g., `admin/add-user.container.tsx` for `admin/add-user` screen)
+  - **Models**: `src/models/[route-path].model.ts` (e.g., `admin/add-user.model.ts` for `admin/add-user` screen)
+  - **Components**: Feature-specific components can be placed near their containers or in `src/components/` if reusable
+- **Reusable Components**: Only truly reusable UI components in `src/components/ui/`
 - **Platform Files**: Use `.ios.tsx`, `.web.ts` extensions for platform-specific implementations
 
 ### Universal Design Patterns
@@ -183,17 +187,19 @@ npm run reset-project      # Reset to blank starter
 ```
 
 ### Component Creation Guidelines
-1. **UI Components**: Place in `src/components/ui/` with proper TypeScript interfaces
-2. **Container Components**: Create feature-based containers in `src/containers/[feature-name]/` that encapsulate business logic and can be imported into screens. Name them without "Container" suffix since they're already in containers folder
-3. **Styling**: Always use NativeWind's `className` prop with Tailwind utility classes
-4. **Variants**: Define variants using `cva` (class-variance-authority) for type-safe component APIs
-5. **Platform Support**: Consider all platforms (iOS/Android/Web) when using native APIs
-6. **Authentication**: Use `authClient` hooks for auth state management
-7. **State Management**: Create model classes in `src/models/` for complex state, use Legend State observables for reactive state
-8. **No Hooks**: Avoid using React hooks; use Legend State observables directly
-9. **Native Components**: Always use React Native components (View, Text, Button, etc.) instead of HTML elements
-10. **Error Handling**: Use toast notifications for error messages
-11. **Folder Structure**: Organize code by features/modules in appropriate folders
+1. **Containers**: Create containers in `src/containers/` that mirror the Expo Router structure (e.g., `admin/add-user.container.tsx`)
+2. **Models**: Create models in `src/models/` that mirror the Expo Router structure (e.g., `admin/add-user.model.ts`)
+3. **Feature Components**: Place feature-specific components near their containers or in `src/components/` if used across multiple features
+4. **Reusable UI Components**: Only truly reusable components go in `src/components/ui/` with proper TypeScript interfaces
+5. **Styling**: Always use NativeWind's `className` prop with Tailwind utility classes
+6. **Variants**: Define variants using `cva` (class-variance-authority) for type-safe component APIs
+7. **Platform Support**: Consider all platforms (iOS/Android/Web) when using native APIs
+8. **Authentication**: Use `authClient` hooks for auth state management
+9. **State Management**: Use Legend State observables for reactive state management
+10. **No Hooks**: Avoid using React hooks; use Legend State observables directly
+11. **Native Components**: Always use React Native components (View, Text, Button, etc.) instead of HTML elements
+12. **Error Handling**: Use toast notifications for error messages
+13. **Folder Structure**: Mirror the Expo Router structure in containers and models folders
 
 ### Theme Customization
 - **Colors**: Define theme colors in `tailwind.config.js` using CSS custom properties

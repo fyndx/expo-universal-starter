@@ -20,7 +20,7 @@ import {
 } from "~/components/ui/select";
 import { Switch } from "~/components/ui/switch";
 import { Text } from "~/components/ui/text";
-import { addUserModel, type UserRole } from "~/models/add-user.model";
+import { addUserModel, type UserRole } from "~/models/admin/add-user.model";
 
 export const AddUser = observer(() => {
 	const { form, status, error } = addUserModel.obs.get();
