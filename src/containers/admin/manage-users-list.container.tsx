@@ -4,12 +4,12 @@ import type { UserWithRole } from "better-auth/plugins/admin";
 import * as React from "react";
 import { ScrollView, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { UserTableHeader } from "~/components/admin/user-table-header";
-import { UserTableRow } from "~/components/admin/user-table-row";
-import { UsersListFilters } from "~/components/admin/users-list-filters";
 import { Pagination } from "~/components/ui/pagination";
 import { Table, TableBody, TableHeader } from "~/components/ui/table";
 import { Text } from "~/components/ui/text";
+import { UserTableHeader } from "~/containers/admin/components/user-table-header";
+import { UserTableRow } from "~/containers/admin/components/user-table-row";
+import { UsersListFilters } from "~/containers/admin/components/users-list-filters";
 import type { ManageUsersListModel } from "~/models/admin/manage-users-list.model";
 
 interface UsersListProps {
