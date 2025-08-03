@@ -89,10 +89,37 @@ export class ExampleModel {
 }
 ```
 
+Example container pattern:
+```tsx
+// src/containers/user-management/user-list-container.tsx
+import { View } from "react-native";
+import { observer } from "@legendapp/state/react";
+import { userManagementModel } from "~/models/user-management.model";
+import { UserCard } from "~/components/ui/user-card";
+import { LoadingSpinner } from "~/components/ui/loading-spinner";
+
+export const UserListContainer = observer(() => {
+  const { users, status } = userManagementModel.obs.get();
+
+  if (status === "loading") {
+    return <LoadingSpinner />;
+  }
+
+  return (
+    <View className="flex-1 p-4">
+      {users?.map((user) => (
+        <UserCard key={user.id} user={user} />
+      ))}
+    </View>
+  );
+});
+```
+
 ### File Structure & Routing
 - **App Directory**: `src/app/` contains all routes using Expo Router file-based routing
 - **Route Groups**: `(auth)` for authentication screens, `(tabs)` for main app navigation
 - **Components**: UI components in `src/components/ui/` follow React.forwardRef pattern with displayName
+- **Containers**: Feature-based container components in `src/containers/[feature-name]/` that encapsulate business logic and can be imported into screens
 - **Platform Files**: Use `.ios.tsx`, `.web.ts` extensions for platform-specific implementations
 
 ### Universal Design Patterns
@@ -118,15 +145,16 @@ npm run reset-project      # Reset to blank starter
 
 ### Component Creation Guidelines
 1. **UI Components**: Place in `src/components/ui/` with proper TypeScript interfaces
-2. **Styling**: Always use NativeWind's `className` prop with Tailwind utility classes
-3. **Variants**: Define variants using `cva` (class-variance-authority) for type-safe component APIs
-4. **Platform Support**: Consider all platforms (iOS/Android/Web) when using native APIs
-5. **Authentication**: Use `authClient` hooks for auth state management
-6. **State Management**: Create model classes in `src/models/` for complex state, use Legend State observables for reactive state
-7. **No Hooks**: Avoid using React hooks; use Legend State observables directly
-8. **Native Components**: Always use React Native components (View, Text, Button, etc.) instead of HTML elements
-9. **Error Handling**: Use toast notifications for error messages
-10. **Folder Structure**: Organize code by features/modules in appropriate folders
+2. **Container Components**: Create feature-based containers in `src/containers/[feature-name]/` that encapsulate business logic and can be imported into screens
+3. **Styling**: Always use NativeWind's `className` prop with Tailwind utility classes
+4. **Variants**: Define variants using `cva` (class-variance-authority) for type-safe component APIs
+5. **Platform Support**: Consider all platforms (iOS/Android/Web) when using native APIs
+6. **Authentication**: Use `authClient` hooks for auth state management
+7. **State Management**: Create model classes in `src/models/` for complex state, use Legend State observables for reactive state
+8. **No Hooks**: Avoid using React hooks; use Legend State observables directly
+9. **Native Components**: Always use React Native components (View, Text, Button, etc.) instead of HTML elements
+10. **Error Handling**: Use toast notifications for error messages
+11. **Folder Structure**: Organize code by features/modules in appropriate folders
 
 ### Theme Customization
 - **Colors**: Define theme colors in `tailwind.config.js` using CSS custom properties
