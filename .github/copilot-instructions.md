@@ -44,9 +44,10 @@ type ButtonProps = VariantProps<typeof buttonVariants> & PressableProps;
 
 ### State Management (Legend State)
 - **Observable State**: Use `@legendapp/state` for reactive state management across the app
-- **Model Pattern**: Create class-based models in `src/containers/` for complex state logic
+- **Model Pattern**: Create class-based models in `src/models/` with naming convention `feature-name.model.ts` (e.g., `manage-users.model.ts`)
 - **API Integration**: Models handle API calls with observable state for loading, success, and error states
 - **Performance**: Legend State provides fine-grained reactivity with minimal re-renders
+- **No Hooks**: Avoid using React hooks; use Legend State observables directly for state management
 
 Example model pattern:
 ```tsx
@@ -100,6 +101,8 @@ export class ExampleModel {
 - **Navigation**: Tab bar uses platform-specific blur effects via conditional components
 - **Responsive**: Use Tailwind's responsive prefixes (`sm:`, `md:`, `lg:`) and NativeWind's responsive utilities
 - **Platform-Specific Styles**: Use `web:` prefix for web-only styles, and conditional rendering for native-specific components
+- **Native Components**: Always use React Native components (View, Text, Button, etc.) instead of HTML elements (div, span, button)
+- **Error Handling**: Use toast notifications for displaying error messages to users
 
 ## Development Workflow
 
@@ -119,7 +122,11 @@ npm run reset-project      # Reset to blank starter
 3. **Variants**: Define variants using `cva` (class-variance-authority) for type-safe component APIs
 4. **Platform Support**: Consider all platforms (iOS/Android/Web) when using native APIs
 5. **Authentication**: Use `authClient` hooks for auth state management
-6. **State Management**: Create model classes in `src/containers/` for complex state, use Legend State observables for reactive state
+6. **State Management**: Create model classes in `src/models/` for complex state, use Legend State observables for reactive state
+7. **No Hooks**: Avoid using React hooks; use Legend State observables directly
+8. **Native Components**: Always use React Native components (View, Text, Button, etc.) instead of HTML elements
+9. **Error Handling**: Use toast notifications for error messages
+10. **Folder Structure**: Organize code by features/modules in appropriate folders
 
 ### Theme Customization
 - **Colors**: Define theme colors in `tailwind.config.js` using CSS custom properties
