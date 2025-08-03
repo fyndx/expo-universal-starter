@@ -122,6 +122,8 @@ interface IManageUsersListModel {
 	filters: {
 		/** Search term for user lookup */
 		search: string;
+		/** Local search input state for debouncing */
+		searchInput: string;
 		/** Selected user role for filtering */
 		role: string;
 		/** Selected user status for filtering */
@@ -170,6 +172,7 @@ export class ManageUsersListModel {
 			},
 			filters: {
 				search: "",
+				searchInput: "",
 				role: "all",
 				status: "all",
 			},
@@ -226,7 +229,7 @@ export class ManageUsersListModel {
 			// Add search parameters if search term is provided
 			if (search) {
 				queryParams.searchValue = search;
-				queryParams.searchField = "name"; // Search by name field
+				queryParams.searchField = "email"; // Search by email field
 				queryParams.searchOperator = "contains";
 			}
 
@@ -341,6 +344,16 @@ export class ManageUsersListModel {
 	};
 
 	/**
+	 * Sets the search input value (for debouncing).
+	 * This updates the input field but doesn't trigger a search immediately.
+	 *
+	 * @param searchInput - The search input value
+	 */
+	setSearchInput = (searchInput: string) => {
+		this.obs.filters.searchInput.set(searchInput);
+	};
+
+	/**
 	 * Sets the search filter and resets the current page to 1.
 	 * Automatically fetches users with the new filter applied.
 	 *
@@ -383,6 +396,7 @@ export class ManageUsersListModel {
 	clearFilters = () => {
 		this.obs.filters.set({
 			search: "",
+			searchInput: "",
 			role: "all",
 			status: "all",
 		});

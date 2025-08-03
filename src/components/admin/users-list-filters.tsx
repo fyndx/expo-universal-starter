@@ -19,8 +19,7 @@ interface UsersListFiltersProps {
 }
 
 export const UsersListFilters = observer(({ model }: UsersListFiltersProps) => {
-	const { search, role, status } = model.obs.filters.get();
-	const [searchInput, setSearchInput] = React.useState(search);
+	const { search, searchInput, role, status } = model.obs.filters.get();
 	const insets = useSafeAreaInsets();
 
 	const roleRef = React.useRef<React.ElementRef<typeof SelectTrigger> | null>(
@@ -50,11 +49,6 @@ export const UsersListFilters = observer(({ model }: UsersListFiltersProps) => {
 
 		return () => clearTimeout(timer);
 	}, [searchInput, search, model]);
-
-	// Update local search input when filter is cleared
-	React.useEffect(() => {
-		setSearchInput(search);
-	}, [search]);
 
 	const roleOptions = [
 		{ value: "all", label: "All Roles" },
@@ -89,93 +83,97 @@ export const UsersListFilters = observer(({ model }: UsersListFiltersProps) => {
 
 	return (
 		<View className="mb-6 gap-4">
-			<Text className="text-lg font-semibold">Search & Filters</Text>
-
-			{/* Search Input */}
-			<View className="gap-2">
-				<Text className="text-sm font-medium">Search by name or email</Text>
-				<Input
-					placeholder="Search users..."
-					value={searchInput}
-					onChangeText={setSearchInput}
-					className="w-full max-w-md"
-				/>
-			</View>
-
-			{/* Filters Row */}
-			<View className="flex-row gap-4 flex-wrap">
-				{/* Role Filter */}
-				<View className="gap-2 flex-1 min-w-48">
-					<Text className="text-sm font-medium">Filter by role</Text>
-					<Select
-						value={roleOptions.find((option) => option.value === role)}
-						onValueChange={handleRoleChange}
-					>
-						<SelectTrigger
-							ref={roleRef}
+			{/* Main Filter Row */}
+			<View className="flex-row gap-4 items-end justify-between">
+				{/* Left side - Filters */}
+				<View className="flex-row gap-4 flex-1 flex-wrap">
+					{/* Search Input */}
+					<View className="gap-2 flex-1 max-w-64">
+						<Text className="text-sm font-medium">Search by email</Text>
+						<Input
+							placeholder="Search user by email"
+							value={searchInput}
+							onChangeText={model.setSearchInput}
 							className="w-full"
-							onTouchStart={() => {
-								roleRef.current?.open();
-							}}
+						/>
+					</View>
+
+					{/* Role Filter */}
+					<View className="gap-2 flex-1 max-w-48">
+						<Text className="text-sm font-medium">Filter by role</Text>
+						<Select
+							value={roleOptions.find((option) => option.value === role)}
+							onValueChange={handleRoleChange}
 						>
-							<SelectValue
-								className="text-foreground text-sm native:text-lg"
-								placeholder="Select role"
-							/>
-						</SelectTrigger>
-						<SelectContent insets={contentInsets} className="w-full">
-							{roleOptions.map((option) => (
-								<SelectItem
-									key={option.value}
-									label={option.label}
-									value={option.value}
-								>
-									{option.label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+							<SelectTrigger
+								ref={roleRef}
+								className="w-full"
+								onTouchStart={() => {
+									roleRef.current?.open();
+								}}
+							>
+								<SelectValue
+									className="text-foreground text-sm native:text-lg"
+									placeholder="Select role"
+								/>
+							</SelectTrigger>
+							<SelectContent insets={contentInsets} className="w-full">
+								{roleOptions.map((option) => (
+									<SelectItem
+										key={option.value}
+										label={option.label}
+										value={option.value}
+									>
+										{option.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</View>
+
+					{/* Status Filter */}
+					<View className="gap-2 flex-1 max-w-48">
+						<Text className="text-sm font-medium">Filter by status</Text>
+						<Select
+							value={statusOptions.find((option) => option.value === status)}
+							onValueChange={handleStatusChange}
+						>
+							<SelectTrigger
+								ref={statusRef}
+								className="w-full"
+								onTouchStart={() => {
+									statusRef.current?.open();
+								}}
+							>
+								<SelectValue
+									className="text-foreground text-sm native:text-lg"
+									placeholder="Select status"
+								/>
+							</SelectTrigger>
+							<SelectContent insets={contentInsets} className="w-full">
+								{statusOptions.map((option) => (
+									<SelectItem
+										key={option.value}
+										label={option.label}
+										value={option.value}
+									>
+										{option.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</View>
 				</View>
 
-				{/* Status Filter */}
-				<View className="gap-2 flex-1 min-w-48">
-					<Text className="text-sm font-medium">Filter by status</Text>
-					<Select
-						value={statusOptions.find((option) => option.value === status)}
-						onValueChange={handleStatusChange}
-					>
-						<SelectTrigger
-							ref={statusRef}
-							className="w-full"
-							onTouchStart={() => {
-								statusRef.current?.open();
-							}}
-						>
-							<SelectValue
-								className="text-foreground text-sm native:text-lg"
-								placeholder="Select status"
-							/>
-						</SelectTrigger>
-						<SelectContent insets={contentInsets} className="w-full">
-							{statusOptions.map((option) => (
-								<SelectItem
-									key={option.value}
-									label={option.label}
-									value={option.value}
-								>
-									{option.label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+				{/* Right side - Action Buttons */}
+				<View className="flex-row gap-2">
+					<Button variant="outline" onPress={model.clearFilters}>
+						<Text>Clear Filters</Text>
+					</Button>
+					<Button variant="default">
+						<Text>Add User</Text>
+					</Button>
 				</View>
-			</View>
-
-			{/* Clear Filters Button */}
-			<View className="flex-row justify-start">
-				<Button variant="outline" onPress={model.clearFilters}>
-					<Text>Clear All Filters</Text>
-				</Button>
 			</View>
 		</View>
 	);
