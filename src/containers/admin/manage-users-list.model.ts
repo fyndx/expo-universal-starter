@@ -126,8 +126,6 @@ interface IManageUsersListModel {
 		searchInput: string;
 		/** Selected user role for filtering */
 		role: string;
-		/** Selected user status for filtering */
-		status: string;
 	};
 }
 
@@ -174,7 +172,6 @@ export class ManageUsersListModel {
 				search: "",
 				searchInput: "",
 				role: "all",
-				status: "all",
 			},
 		});
 	}
@@ -216,7 +213,7 @@ export class ManageUsersListModel {
 				currentState.metadata.pageSize;
 
 			// Prepare filters for the API request
-			const { search, role, status } = currentState.filters;
+			const { search, role } = currentState.filters;
 
 			// Build query parameters for Better Auth admin endpoint
 			const queryParams: ListUsersQueryParams = {
@@ -237,15 +234,6 @@ export class ManageUsersListModel {
 			if (role !== "all") {
 				queryParams.filterField = "role";
 				queryParams.filterValue = role;
-				queryParams.filterOperator = "eq";
-			}
-
-			// Add status filter if not "all" (for role filter, we need to use a different approach)
-			// Note: If we need both role and status filters, we might need to handle this differently
-			// as the API might not support multiple filters simultaneously
-			if (status !== "all" && role === "all") {
-				queryParams.filterField = "status";
-				queryParams.filterValue = status;
 				queryParams.filterOperator = "eq";
 			}
 
@@ -378,18 +366,6 @@ export class ManageUsersListModel {
 	};
 
 	/**
-	 * Sets the status filter and resets the current page to 1.
-	 * Automatically fetches users with the new filter applied.
-	 *
-	 * @param status - The user status to filter by
-	 */
-	setStatusFilter = (status: string) => {
-		this.obs.filters.status.set(status);
-		this.obs.metadata.currentPage.set(1); // Reset to first page when filtering
-		this.fetchUsers();
-	};
-
-	/**
 	 * Clears all filters and resets the current page to 1.
 	 * Automatically fetches users with no filters applied.
 	 */
@@ -398,7 +374,6 @@ export class ManageUsersListModel {
 			search: "",
 			searchInput: "",
 			role: "all",
-			status: "all",
 		});
 		this.obs.metadata.currentPage.set(1);
 		this.fetchUsers();

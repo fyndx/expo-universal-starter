@@ -29,6 +29,7 @@
     "@rn-primitives/select": "^1.2.0",
     "@rn-primitives/slot": "^1.2.0",
     "@rn-primitives/table": "^1.2.0",
+    "@rn-primitives/tooltip": "^1.2.0",
     "@shopify/flash-list": "1.7.6",
     "better-auth": "^1.2.12",
     "class-variance-authority": "^0.7.1",

@@ -19,13 +19,10 @@ interface UsersListFiltersProps {
 }
 
 export const UsersListFilters = observer(({ model }: UsersListFiltersProps) => {
-	const { search, searchInput, role, status } = model.obs.filters.get();
+	const { search, searchInput, role } = model.obs.filters.get();
 	const insets = useSafeAreaInsets();
 
 	const roleRef = React.useRef<React.ElementRef<typeof SelectTrigger> | null>(
-		null,
-	);
-	const statusRef = React.useRef<React.ElementRef<typeof SelectTrigger> | null>(
 		null,
 	);
 
@@ -57,27 +54,11 @@ export const UsersListFilters = observer(({ model }: UsersListFiltersProps) => {
 		{ value: "moderator", label: "Moderator" },
 	];
 
-	const statusOptions = [
-		{ value: "all", label: "All Statuses" },
-		{ value: "active", label: "Active" },
-		{ value: "inactive", label: "Inactive" },
-		{ value: "pending", label: "Pending" },
-		{ value: "banned", label: "Banned" },
-	];
-
 	const handleRoleChange = (
 		option: { value: string; label: string } | undefined,
 	) => {
 		if (option) {
 			model.setRoleFilter(option.value);
-		}
-	};
-
-	const handleStatusChange = (
-		option: { value: string; label: string } | undefined,
-	) => {
-		if (option) {
-			model.setStatusFilter(option.value);
 		}
 	};
 
@@ -107,7 +88,7 @@ export const UsersListFilters = observer(({ model }: UsersListFiltersProps) => {
 						>
 							<SelectTrigger
 								ref={roleRef}
-								className="w-full"
+								className={`w-full ${role !== "all" ? "border-primary" : ""}`}
 								onTouchStart={() => {
 									roleRef.current?.open();
 								}}
@@ -119,39 +100,6 @@ export const UsersListFilters = observer(({ model }: UsersListFiltersProps) => {
 							</SelectTrigger>
 							<SelectContent insets={contentInsets} className="w-full">
 								{roleOptions.map((option) => (
-									<SelectItem
-										key={option.value}
-										label={option.label}
-										value={option.value}
-									>
-										{option.label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</View>
-
-					{/* Status Filter */}
-					<View className="gap-2 flex-1 max-w-48">
-						<Text className="text-sm font-medium">Filter by status</Text>
-						<Select
-							value={statusOptions.find((option) => option.value === status)}
-							onValueChange={handleStatusChange}
-						>
-							<SelectTrigger
-								ref={statusRef}
-								className="w-full"
-								onTouchStart={() => {
-									statusRef.current?.open();
-								}}
-							>
-								<SelectValue
-									className="text-foreground text-sm native:text-lg"
-									placeholder="Select status"
-								/>
-							</SelectTrigger>
-							<SelectContent insets={contentInsets} className="w-full">
-								{statusOptions.map((option) => (
 									<SelectItem
 										key={option.value}
 										label={option.label}
