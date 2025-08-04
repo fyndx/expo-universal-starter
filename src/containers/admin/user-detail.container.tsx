@@ -155,9 +155,11 @@ export const UserDetailContainer = observer(() => {
 						<Separator />
 
 						<View className="flex-row items-center justify-between">
-							<Text className="text-muted-foreground">Email Verified</Text>
-							<Badge variant={user.emailVerified ? "default" : "secondary"}>
-								{user.emailVerified ? "Verified" : "Unverified"}
+							<Text className="text-muted-foreground">
+								Email Verification Status
+							</Text>
+							<Badge variant={user.emailVerified ? "default" : "destructive"}>
+								<Text>{user.emailVerified ? "Verified" : "Unverified"}</Text>
 							</Badge>
 						</View>
 
@@ -283,8 +285,11 @@ export const UserDetailContainer = observer(() => {
 										size="sm"
 										onPress={() => userDetailModel$.handleResendVerification()}
 										disabled={updateStatus === "loading"}
+										className="flex-row items-center"
 									>
-										<Mail className="mr-2 h-4 w-4" />
+										<Text>
+											<Mail className="mr-2 h-4 w-4" />
+										</Text>
 										<Text>Resend Verification</Text>
 									</Button>
 								)}
@@ -293,8 +298,11 @@ export const UserDetailContainer = observer(() => {
 									size="sm"
 									onPress={() => userDetailModel$.handleResetPassword()}
 									disabled={updateStatus === "loading"}
+									className="flex-row items-center"
 								>
-									<Key className="mr-2 h-4 w-4" />
+									<Text>
+										<Key className="mr-2 h-4 w-4" />
+									</Text>
 									<Text>Reset Password</Text>
 								</Button>
 								<Button
@@ -302,8 +310,11 @@ export const UserDetailContainer = observer(() => {
 									size="sm"
 									onPress={() => userDetailModel$.setDeleteUserOpen(true)}
 									disabled={updateStatus === "loading"}
+									className="flex-row items-center"
 								>
-									<Trash2 className="mr-2 h-4 w-4" />
+									<Text>
+										<Trash2 className="mr-2 h-4 w-4" />
+									</Text>
 									<Text>Delete User</Text>
 								</Button>
 							</View>

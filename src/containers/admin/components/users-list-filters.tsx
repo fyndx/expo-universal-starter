@@ -1,4 +1,5 @@
 import { observer } from "@legendapp/state/react";
+import { router } from "expo-router";
 import * as React from "react";
 import { Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -118,7 +119,10 @@ export const UsersListFilters = observer(({ model }: UsersListFiltersProps) => {
 					<Button variant="outline" onPress={model.clearFilters}>
 						<Text>Clear Filters</Text>
 					</Button>
-					<Button variant="default">
+					<Button
+						variant="default"
+						onPress={() => router.push("/(public)/(protected)/admin/add-user")}
+					>
 						<Text>Add User</Text>
 					</Button>
 				</View>
