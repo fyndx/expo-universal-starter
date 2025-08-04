@@ -26,6 +26,7 @@ import {
 import { Separator } from "~/components/ui/separator";
 import { Text } from "~/components/ui/text";
 import {
+	BAN_DURATIONS,
 	ROLE_OPTIONS,
 	UserDetailModel,
 } from "~/models/admin/user-detail.model";
@@ -406,15 +407,35 @@ export const UserDetailContainer = observer(() => {
 							/>
 						</View>
 						<View className="gap-2">
-							<Label>Ban Duration (days)</Label>
-							<Input
-								value={formData.banDuration}
-								onChangeText={(text) =>
-									userDetailModel$.setFormData({ banDuration: text })
+							<Label>Ban Duration</Label>
+							<Select
+								value={{
+									value: formData.banDuration,
+									label:
+										BAN_DURATIONS.find((d) => d.value === formData.banDuration)
+											?.label || "Select duration",
+								}}
+								onValueChange={(option) =>
+									userDetailModel$.setFormData({
+										banDuration: option?.value || "",
+									})
 								}
-								placeholder="Leave empty for permanent ban"
-								keyboardType="numeric"
-							/>
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="Select ban duration" />
+								</SelectTrigger>
+								<SelectContent>
+									{BAN_DURATIONS.map((duration) => (
+										<SelectItem
+											key={duration.value}
+											value={duration.value}
+											label={duration.label}
+										>
+											<Text>{duration.label}</Text>
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</View>
 					</View>
 					<DialogFooter>

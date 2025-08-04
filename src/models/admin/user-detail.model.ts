@@ -14,6 +14,17 @@ export const ROLE_OPTIONS = [
 	{ label: "Admin", value: "admin" },
 ];
 
+// Ban duration options in days
+export const BAN_DURATIONS = [
+	{ label: "1 day", value: "1" },
+	{ label: "3 days", value: "3" },
+	{ label: "7 days", value: "7" },
+	{ label: "14 days", value: "14" },
+	{ label: "30 days", value: "30" },
+	{ label: "90 days", value: "90" },
+	{ label: "Permanent", value: "permanent" },
+];
+
 // Extended user interface with admin-specific fields
 export interface User extends BetterAuthUser {
 	banned?: boolean;
@@ -385,22 +396,31 @@ export class UserDetailModel {
 
 		this.obs.updateStatus.set("loading");
 		try {
-			const updates: Partial<User> = {
-				banned: true,
-				banReason: banReason.trim(),
-			};
+			let banExpiresIn: number | undefined;
 
-			if (banDuration) {
-				const banDate = new Date();
-				banDate.setDate(banDate.getDate() + parseInt(banDuration));
-				updates.banExpires = banDate.toISOString();
+			if (banDuration && banDuration !== "permanent") {
+				const days = parseInt(banDuration);
+				banExpiresIn = 60 * 60 * 24 * days; // Convert days to seconds
 			}
 
-			await this.updateUser({ userId: user.id, updates });
+			const { error } = await authClient.admin.banUser({
+				userId: user.id,
+				banReason: banReason.trim(),
+				...(banExpiresIn && { banExpiresIn }),
+			});
+
+			if (error) {
+				throw new Error(error.message);
+			}
+
+			await this.fetchUserById({ id: user.id });
 			this.resetBanForm();
 			this.obs.updateStatus.set("success");
-		} catch (_error) {
+			toast.success("User banned successfully");
+		} catch (error) {
+			const errorMessage = this.getErrorMessage(error, "Failed to ban user");
 			this.obs.updateStatus.set("error");
+			toast.error(errorMessage);
 		}
 	}
 
@@ -413,17 +433,21 @@ export class UserDetailModel {
 
 		this.obs.updateStatus.set("loading");
 		try {
-			await this.updateUser({
+			const { error } = await authClient.admin.unbanUser({
 				userId: user.id,
-				updates: {
-					banned: false,
-					banReason: undefined,
-					banExpires: undefined,
-				},
 			});
+
+			if (error) {
+				throw new Error(error.message);
+			}
+
+			await this.fetchUserById({ id: user.id });
 			this.obs.updateStatus.set("success");
-		} catch (_error) {
+			toast.success("User unbanned successfully");
+		} catch (error) {
+			const errorMessage = this.getErrorMessage(error, "Failed to unban user");
 			this.obs.updateStatus.set("error");
+			toast.error(errorMessage);
 		}
 	}
 
