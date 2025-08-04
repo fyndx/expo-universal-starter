@@ -1,10 +1,19 @@
-import { View } from "@rn-primitives/slot";
-import { Text } from "~/components/ui/text";
+import { useMount } from "@legendapp/state/react";
+import { useRef } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { UsersList } from "~/containers/admin/manage-users-list.container";
+import { ManageUsersListModel } from "~/models/admin/manage-users-list.model";
 
 export default function ManageUsersScreen() {
+	const manageUsersListModel$ = useRef(new ManageUsersListModel()).current;
+
+	useMount(() => {
+		manageUsersListModel$.fetchUsers();
+	});
+
 	return (
-		<View>
-			<Text>Manage Users</Text>
-		</View>
+		<SafeAreaView style={{ flex: 1 }}>
+			<UsersList model={manageUsersListModel$} />
+		</SafeAreaView>
 	);
 }

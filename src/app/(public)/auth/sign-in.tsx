@@ -15,6 +15,7 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Text } from "~/components/ui/text";
+import { toast } from "~/lib/sonner/sonner";
 
 export default function SignIn() {
 	const [email, setEmail] = useState("");
@@ -32,7 +33,9 @@ export default function SignIn() {
 			});
 
 			if (error) {
-				// TODO: Toast Error
+				toast.error(`Login failed: ${error.message}`, {
+					position: "bottom-center",
+				});
 				return;
 			}
 			router.replace("/home");

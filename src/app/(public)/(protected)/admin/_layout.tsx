@@ -1,4 +1,4 @@
-import { Redirect, Slot } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { LoadingScreen } from "~/containers/loading-screen";
 import { authClient } from "~/lib/auth-client";
 
@@ -9,8 +9,6 @@ export default function AdminLayout() {
 		return <LoadingScreen />;
 	}
 
-	console.log("AdminLayout data", data);
-
 	if (!data) {
 		return <Redirect href="/auth/sign-in" />;
 	}
@@ -20,8 +18,26 @@ export default function AdminLayout() {
 	}
 
 	return (
-		<>
-			<Slot />
-		</>
+		<Stack screenOptions={{ headerShown: false }}>
+			<Stack.Screen
+				name="index"
+				options={{
+					title: "Admin Dashboard",
+					headerStyle: {
+						backgroundColor: "#f8fafc",
+					},
+				}}
+			/>
+			<Stack.Screen
+				name="add-user"
+				options={{
+					title: "Add User",
+					presentation: "modal",
+					headerStyle: {
+						backgroundColor: "#f8fafc",
+					},
+				}}
+			/>
+		</Stack>
 	);
 }
