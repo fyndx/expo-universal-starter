@@ -406,7 +406,10 @@ export const UserDetailContainer = observer(() => {
 			</View>
 
 			{/* Ban User Dialog */}
-			<Dialog open={banUserOpen} onOpenChange={userDetailModel$.setBanUserOpen}>
+			<Dialog
+				open={banUserOpen}
+				onOpenChange={(open) => userDetailModel$.setBanUserOpen(open)}
+			>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Ban User</DialogTitle>
@@ -482,7 +485,7 @@ export const UserDetailContainer = observer(() => {
 			{/* Delete User Dialog */}
 			<Dialog
 				open={deleteUserOpen}
-				onOpenChange={userDetailModel$.setDeleteUserOpen}
+				onOpenChange={(open) => userDetailModel$.setDeleteUserOpen(open)}
 			>
 				<DialogContent>
 					<DialogHeader>
