@@ -94,7 +94,7 @@ export const HeaderUser = () => {
 							variant="outline"
 							size="sm"
 							onPress={() => {
-								push("/auth/sign-in");
+								push("/auth/sign-in", { withAnchor: true });
 							}}
 						>
 							<Text>Login</Text>
@@ -158,7 +158,9 @@ export const HeaderUser = () => {
 						</View>
 					) : (
 						<View className="p-4">
-							<Button onPress={() => push("/auth/sign-in")}>
+							<Button
+								onPress={() => push("/auth/sign-in", { withAnchor: true })}
+							>
 								<Text>Login</Text>
 							</Button>
 						</View>

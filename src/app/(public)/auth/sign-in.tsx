@@ -77,7 +77,7 @@ export default function SignIn() {
 								secureTextEntry={true}
 							/>
 							{/* Forgot Password */}
-							<Link href="/forgot-password">
+							<Link href="/(public)/auth/forgot-password">
 								<Text className="mt-2 text-right text-sm text-muted-foreground self-end hover:underline hover:text-primary">
 									Forgot Password?
 								</Text>
@@ -92,6 +92,19 @@ export default function SignIn() {
 								<Text>{isLoading ? "Signing In..." : "Sign In"}</Text>
 							</Button>
 						</CardFooter>
+						{/* Sign Up Option */}
+						<View className="p-6 pt-0">
+							<View className="flex-row justify-center items-center">
+								<Text className="text-sm text-muted-foreground">
+									Don't have an account?{" "}
+								</Text>
+								<Link href="/(public)/auth/sign-up">
+									<Text className="text-sm text-primary hover:underline font-medium">
+										Sign up
+									</Text>
+								</Link>
+							</View>
+						</View>
 					</Card>
 				</MotiView>
 			</View>
