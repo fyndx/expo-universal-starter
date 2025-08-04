@@ -1,5 +1,8 @@
+import { router } from "expo-router";
+import { Eye } from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
+import { Button } from "~/components/ui/button";
 import { TableCell, TableRow } from "~/components/ui/table";
 import { Text } from "~/components/ui/text";
 import {
@@ -29,6 +32,11 @@ interface UserTableRowProps {
 
 export const UserTableRow = React.memo(
 	({ user, index, columnWidths }: UserTableRowProps) => {
+		const handleViewDetails = () => {
+			// Navigate to user detail screen
+			router.push(`/admin/user-detail/${user.id}`);
+		};
+
 		return (
 			<TableRow
 				key={user.id}
@@ -87,7 +95,17 @@ export const UserTableRow = React.memo(
 					</Text>
 				</TableCell>
 				<TableCell style={{ width: columnWidths[8] }}>
-					<Text className="text-sm text-muted-foreground">Actions</Text>
+					<Button
+						variant="ghost"
+						size="sm"
+						className="flex-row items-center"
+						onPress={handleViewDetails}
+					>
+						<Text>
+							<Eye className="h-4 w-4 mr-2" />
+						</Text>
+						<Text>View User</Text>
+					</Button>
 				</TableCell>
 			</TableRow>
 		);
