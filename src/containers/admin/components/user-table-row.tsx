@@ -34,8 +34,7 @@ export const UserTableRow = React.memo(
 	({ user, index, columnWidths }: UserTableRowProps) => {
 		const handleViewDetails = () => {
 			// Navigate to user detail screen
-			const path = `/(tabs)/admin/user-detail/${user.id}`;
-			router.navigate(path as never);
+			router.push(`/admin/user-detail/${user.id}`);
 		};
 
 		return (

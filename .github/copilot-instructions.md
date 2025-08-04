@@ -5,6 +5,22 @@ This is a universal React Native app built with Expo Router that runs on iOS, An
 
 ## Key Architecture Patterns
 
+### Method Parameters
+- **Object Arguments**: Always use object destructuring for method parameters, especially for models and API calls
+- **Multiple Parameters**: When a method takes multiple parameters, wrap them in an object for better maintainability
+- **Type Safety**: Use TypeScript interfaces to define parameter shapes
+
+Example:
+```tsx
+// ✅ Good - Object arguments
+async fetchUserById({ id }: { id: string }): Promise<void>
+async updateUser({ userId, updates }: { userId: string; updates: Partial<User> }): Promise<void>
+
+// ❌ Avoid - Multiple loose parameters
+async fetchUserById(id: string): Promise<void>
+async updateUser(userId: string, updates: Partial<User>): Promise<void>
+```
+
 ### Styling System (NativeWind + react-native-reusables)
 - **Theme Configuration**: Themes are configured using Tailwind CSS configuration in `tailwind.config.js` with CSS custom properties
 - **Component Patterns**: UI components use NativeWind's `className` prop with Tailwind utility classes
