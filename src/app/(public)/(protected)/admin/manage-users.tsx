@@ -13,7 +13,7 @@ export default function ManageUsersScreen() {
 
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
-			<UsersList model={manageUsersListModel$} />
+			<UsersList userListModel$={manageUsersListModel$} />
 		</SafeAreaView>
 	);
 }
