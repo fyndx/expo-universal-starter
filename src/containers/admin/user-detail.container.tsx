@@ -35,25 +35,22 @@ export const UserDetailContainer = observer(() => {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const userDetailModel$ = useRef(new UserDetailModel()).current;
 
-	// Get state from the model
+	// Get state from individual models directly
+	const { status, user, saveStatus } = userDetailModel$.userModel.obs.get();
 	const {
-		status,
-		user,
 		sessions,
 		sessionsStatus,
-		banUserOpen,
-		deleteUserOpen,
-		saveStatus,
-		banStatus,
-		deleteStatus,
-		resendVerificationStatus,
-		resetPasswordStatus,
 		revokeSessionStatus,
 		revokeAllSessionsStatus,
-	} = userDetailModel$.obs.get();
+	} = userDetailModel$.sessionModel.obs.get();
+	const { banStatus, deleteStatus, banUserOpen, deleteUserOpen } =
+		userDetailModel$.moderationModel.obs.get();
+	const { resendVerificationStatus, resetPasswordStatus } =
+		userDetailModel$.emailModel.obs.get();
 
-	// Get form data from formData$ observable
-	const formData = userDetailModel$.formData$.get();
+	// Get form data from individual models
+	const formData = userDetailModel$.formModel.obs.get();
+	const banFormData = userDetailModel$.moderationModel.banFormData$.get();
 
 	useEffect(() => {
 		if (id) {
@@ -219,7 +216,9 @@ export const UserDetailContainer = observer(() => {
 											disabled={banStatus === "loading"}
 										>
 											<Text>
-												{banStatus === "loading" ? "Unbanning..." : "Unban User"}
+												{banStatus === "loading"
+													? "Unbanning..."
+													: "Unban User"}
 											</Text>
 										</Button>
 									</View>
@@ -444,7 +443,7 @@ export const UserDetailContainer = observer(() => {
 						<View className="gap-2">
 							<Label>Ban Reason *</Label>
 							<Input
-								value={formData.banReason}
+								value={banFormData.banReason}
 								onChangeText={(text) =>
 									userDetailModel$.setFormData({ banReason: text })
 								}
@@ -457,10 +456,11 @@ export const UserDetailContainer = observer(() => {
 							<Label>Ban Duration</Label>
 							<Select
 								value={{
-									value: formData.banDuration,
+									value: banFormData.banDuration,
 									label:
-										BAN_DURATIONS.find((d) => d.value === formData.banDuration)
-											?.label || "Select duration",
+										BAN_DURATIONS.find(
+											(d) => d.value === banFormData.banDuration,
+										)?.label || "Select duration",
 								}}
 								onValueChange={(option) =>
 									userDetailModel$.setFormData({
@@ -497,9 +497,7 @@ export const UserDetailContainer = observer(() => {
 							disabled={banStatus === "loading"}
 							variant="destructive"
 						>
-							<Text>
-								{banStatus === "loading" ? "Banning..." : "Ban User"}
-							</Text>
+							<Text>{banStatus === "loading" ? "Banning..." : "Ban User"}</Text>
 						</Button>
 					</DialogFooter>
 				</DialogContent>
