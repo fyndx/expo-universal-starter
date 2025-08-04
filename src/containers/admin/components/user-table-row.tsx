@@ -95,11 +95,14 @@ export const UserTableRow = React.memo(
 					</Text>
 				</TableCell>
 				<TableCell style={{ width: columnWidths[8] }}>
-					<Button variant="ghost" size="sm" onPress={handleViewDetails}>
-						<Text className="flex items-center">
-							<Eye className="h-4 w-4 mr-2" />
-							<Text>View User</Text>
-						</Text>
+					<Button
+						variant="ghost"
+						size="sm"
+						className="flex-row items-center"
+						onPress={handleViewDetails}
+					>
+						<Eye className="h-4 w-4 mr-2" />
+						<Text>View User</Text>
 					</Button>
 				</TableCell>
 			</TableRow>

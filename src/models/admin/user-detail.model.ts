@@ -452,7 +452,13 @@ export class UserDetailModel {
 	async handleBanUser(): Promise<void> {
 		const { banReason, banDuration } = this.formData$.peek();
 		const { user } = this.obs.peek();
-		if (!banReason.trim() || !user?.id) {
+
+		if (!user?.id) {
+			return;
+		}
+
+		if (!banReason.trim()) {
+			toast.error("Ban reason is required");
 			return;
 		}
 
