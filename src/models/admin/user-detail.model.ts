@@ -1,13 +1,13 @@
 import { toast } from "~/lib/sonner/sonner";
-import { UserModel, type User, ROLE_OPTIONS } from "./user-detail/user.model";
-import { SessionModel, type Session } from "./user-detail/session.model";
-import { ModerationModel, BAN_DURATIONS } from "./user-detail/moderation.model";
 import { EmailModel } from "./user-detail/email.model";
 import { FormModel } from "./user-detail/form.model";
+import { BAN_DURATIONS, ModerationModel } from "./user-detail/moderation.model";
+import { type Session, SessionModel } from "./user-detail/session.model";
+import { ROLE_OPTIONS, type User, UserModel } from "./user-detail/user.model";
 
 // Re-export types and constants for backward compatibility
-export type { User, Session };
-export { ROLE_OPTIONS, BAN_DURATIONS };
+export { BAN_DURATIONS, ROLE_OPTIONS };
+export type { Session, User };
 
 /**
  * UserDetailModel - Refactored to use composition of focused models
@@ -72,14 +72,18 @@ export class UserDetailModel {
 		}>,
 	): void {
 		// Split updates between form and moderation models
-		const formUpdates: Partial<{ name: string; email: string; role: string }> = {};
-		const banFormUpdates: Partial<{ banReason: string; banDuration: string }> = {};
+		const formUpdates: Partial<{ name: string; email: string; role: string }> =
+			{};
+		const banFormUpdates: Partial<{ banReason: string; banDuration: string }> =
+			{};
 
 		if (updates.name !== undefined) formUpdates.name = updates.name;
 		if (updates.email !== undefined) formUpdates.email = updates.email;
 		if (updates.role !== undefined) formUpdates.role = updates.role;
-		if (updates.banReason !== undefined) banFormUpdates.banReason = updates.banReason;
-		if (updates.banDuration !== undefined) banFormUpdates.banDuration = updates.banDuration;
+		if (updates.banReason !== undefined)
+			banFormUpdates.banReason = updates.banReason;
+		if (updates.banDuration !== undefined)
+			banFormUpdates.banDuration = updates.banDuration;
 
 		if (Object.keys(formUpdates).length > 0) {
 			this.formModel.setFormData(formUpdates);
@@ -129,12 +133,15 @@ export class UserDetailModel {
 
 	async handleSessionRevoke({
 		userId,
-		sessionId,
+		sessionToken,
 	}: {
 		userId: string;
-		sessionId: string;
+		sessionToken: string;
 	}): Promise<void> {
-		await this.sessionModel.revokeSingleSession({ userId, sessionId });
+		await this.sessionModel.revokeSingleSession({
+			userId,
+			sessionToken,
+		});
 	}
 
 	async handleAllSessionsRevoke({ userId }: { userId: string }): Promise<void> {
@@ -161,7 +168,11 @@ export class UserDetailModel {
 
 		const changes = this.formModel.getChanges(user);
 
-		if (!changes.hasNameChange && !changes.hasEmailChange && !changes.hasRoleChange) {
+		if (
+			!changes.hasNameChange &&
+			!changes.hasEmailChange &&
+			!changes.hasRoleChange
+		) {
 			toast.info("No changes to save");
 			return;
 		}
@@ -170,23 +181,24 @@ export class UserDetailModel {
 		try {
 			// Update user data if there are user field changes
 			if (changes.hasNameChange || changes.hasEmailChange) {
-				await this.userModel.updateUser({ 
-					userId: user.id, 
-					updates: changes.userUpdates 
+				await this.userModel.updateUser({
+					userId: user.id,
+					updates: changes.userUpdates,
 				});
 			}
 
 			// Update role if changed
 			if (changes.hasRoleChange && changes.newRole) {
-				await this.userModel.updateUserRole({ 
-					userId: user.id, 
-					role: changes.newRole 
+				await this.userModel.updateUserRole({
+					userId: user.id,
+					role: changes.newRole,
 				});
 			}
 
 			this.userModel.obs.saveStatus.set("success");
 		} catch (_error) {
 			this.userModel.obs.saveStatus.set("error");
+			toast.error("Failed to save changes");
 		}
 	}
 }

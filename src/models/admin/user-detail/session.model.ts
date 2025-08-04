@@ -1,7 +1,5 @@
 import { type Observable, observable } from "@legendapp/state";
-import type {
-	Session as BetterAuthSession,
-} from "better-auth/types";
+import type { Session as BetterAuthSession } from "better-auth/types";
 import { authClient } from "~/lib/auth-client";
 import { toast } from "~/lib/sonner/sonner";
 import type { ApiStatus } from "~/utils/api";
@@ -63,10 +61,7 @@ export class SessionModel {
 			this.obs.sessions.set(sessions);
 			this.obs.sessionsStatus.set("success");
 		} catch (error) {
-			const errorMessage = getErrorMessage(
-				error,
-				"Failed to load sessions",
-			);
+			const errorMessage = getErrorMessage(error, "Failed to load sessions");
 			this.obs.sessionsStatus.set("error");
 			this.obs.error.set(errorMessage);
 			toast.error(errorMessage);
@@ -78,16 +73,16 @@ export class SessionModel {
 	 */
 	async revokeSingleSession({
 		userId,
-		sessionId,
+		sessionToken,
 	}: {
 		userId: string;
-		sessionId: string;
+		sessionToken: string;
 	}): Promise<void> {
 		this.obs.revokeSessionStatus.set("loading");
 
 		try {
 			const { error } = await authClient.admin.revokeUserSession({
-				sessionToken: sessionId,
+				sessionToken,
 			});
 
 			if (error) {
@@ -98,10 +93,7 @@ export class SessionModel {
 			await this.fetchUserSessionsById({ id: userId });
 			toast.success("Session revoked successfully");
 		} catch (error) {
-			const errorMessage = getErrorMessage(
-				error,
-				"Failed to revoke session",
-			);
+			const errorMessage = getErrorMessage(error, "Failed to revoke session");
 			this.obs.revokeSessionStatus.set("error");
 			toast.error(errorMessage);
 			throw error;

@@ -403,7 +403,7 @@ export const UserDetailContainer = observer(() => {
 													onPress={() =>
 														userDetailModel$.handleSessionRevoke({
 															userId: user.id,
-															sessionId: session.id,
+															sessionToken: session.token,
 														})
 													}
 													disabled={revokeSessionStatus === "loading"}
