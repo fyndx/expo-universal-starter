@@ -44,6 +44,8 @@ export const UserDetailContainer = observer(() => {
 		banUserOpen,
 		deleteUserOpen,
 		updateStatus,
+		resendVerificationStatus,
+		resetPasswordStatus,
 	} = userDetailModel$.obs.get();
 
 	// Get form data from formData$ observable
@@ -284,26 +286,34 @@ export const UserDetailContainer = observer(() => {
 										variant="outline"
 										size="sm"
 										onPress={() => userDetailModel$.handleResendVerification()}
-										disabled={updateStatus === "loading"}
+										disabled={resendVerificationStatus === "loading"}
 										className="flex-row items-center"
 									>
 										<Text>
 											<Mail className="mr-2 h-4 w-4" />
 										</Text>
-										<Text>Resend Verification</Text>
+										<Text>
+											{resendVerificationStatus === "loading"
+												? "Sending..."
+												: "Resend Verification"}
+										</Text>
 									</Button>
 								)}
 								<Button
 									variant="outline"
 									size="sm"
 									onPress={() => userDetailModel$.handleResetPassword()}
-									disabled={updateStatus === "loading"}
+									disabled={resetPasswordStatus === "loading"}
 									className="flex-row items-center"
 								>
 									<Text>
 										<Key className="mr-2 h-4 w-4" />
 									</Text>
-									<Text>Reset Password</Text>
+									<Text>
+										{resetPasswordStatus === "loading"
+											? "Sending..."
+											: "Reset Password"}
+									</Text>
 								</Button>
 								<Button
 									variant="destructive"

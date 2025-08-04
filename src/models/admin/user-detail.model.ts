@@ -64,6 +64,10 @@ export class UserDetailModel {
 		// Update operations status
 		updateStatus: ApiStatus;
 
+		// Email operations status
+		resendVerificationStatus: ApiStatus;
+		resetPasswordStatus: ApiStatus;
+
 		// UI state for modals
 		banUserOpen: boolean;
 		deleteUserOpen: boolean;
@@ -89,6 +93,10 @@ export class UserDetailModel {
 
 			// Update operations status
 			updateStatus: "idle" as ApiStatus,
+
+			// Email operations status
+			resendVerificationStatus: "idle" as ApiStatus,
+			resetPasswordStatus: "idle" as ApiStatus,
 
 			// UI state for modals only
 			banUserOpen: false,
@@ -304,6 +312,8 @@ export class UserDetailModel {
 	 * Resends verification email
 	 */
 	async resendVerificationEmail({ email }: { email: string }): Promise<void> {
+		this.obs.resendVerificationStatus.set("loading");
+
 		try {
 			const { error } = await authClient.sendVerificationEmail({ email });
 
@@ -311,14 +321,15 @@ export class UserDetailModel {
 				throw new Error(error.message);
 			}
 
+			this.obs.resendVerificationStatus.set("success");
 			toast.success("Verification email sent successfully");
 		} catch (error) {
 			const errorMessage = this.getErrorMessage(
 				error,
 				"Failed to send verification email",
 			);
+			this.obs.resendVerificationStatus.set("error");
 			toast.error(errorMessage);
-			throw error;
 		}
 	}
 
@@ -326,6 +337,8 @@ export class UserDetailModel {
 	 * Sends password reset email
 	 */
 	async resetPassword({ email }: { email: string }): Promise<void> {
+		this.obs.resetPasswordStatus.set("loading");
+
 		try {
 			const { error } = await authClient.forgetPassword({ email });
 
@@ -333,14 +346,15 @@ export class UserDetailModel {
 				throw new Error(error.message);
 			}
 
+			this.obs.resetPasswordStatus.set("success");
 			toast.success("Password reset email sent successfully");
 		} catch (error) {
 			const errorMessage = this.getErrorMessage(
 				error,
 				"Failed to send password reset email",
 			);
+			this.obs.resetPasswordStatus.set("error");
 			toast.error(errorMessage);
-			throw error;
 		}
 	}
 
