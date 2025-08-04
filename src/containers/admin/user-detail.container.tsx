@@ -25,13 +25,16 @@ import {
 } from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
 import { Text } from "~/components/ui/text";
-import { UserDetailModel } from "~/models/admin/user-detail.model";
+import {
+	ROLE_OPTIONS,
+	UserDetailModel,
+} from "~/models/admin/user-detail.model";
 
 export const UserDetailContainer = observer(() => {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const userDetailModel$ = useRef(new UserDetailModel()).current;
 
-	// Get all state from the model
+	// Get state from the model
 	const {
 		status,
 		user,
@@ -39,13 +42,11 @@ export const UserDetailContainer = observer(() => {
 		sessionsStatus,
 		banUserOpen,
 		deleteUserOpen,
-		loading,
-		newName,
-		newEmail,
-		newRole,
-		banReason,
-		banDuration,
+		updateStatus,
 	} = userDetailModel$.obs.get();
+
+	// Get form data from formData$ observable
+	const formData = userDetailModel$.formData$.get();
 
 	useEffect(() => {
 		if (id) {
@@ -53,12 +54,6 @@ export const UserDetailContainer = observer(() => {
 			userDetailModel$.fetchUserSessionsById({ id });
 		}
 	}, [id, userDetailModel$]);
-
-	useEffect(() => {
-		if (user) {
-			userDetailModel$.initializeFormData(user);
-		}
-	}, [user, userDetailModel$]);
 
 	const formatDate = (dateString: string | Date) => {
 		return new Date(dateString).toLocaleString();
@@ -114,16 +109,18 @@ export const UserDetailContainer = observer(() => {
 								variant="outline"
 								size="sm"
 								onPress={() => userDetailModel$.initializeFormData(user)}
-								disabled={loading}
+								disabled={updateStatus === "loading"}
 							>
 								<Text>Reset</Text>
 							</Button>
 							<Button
 								size="sm"
 								onPress={() => userDetailModel$.handleSaveChanges()}
-								disabled={loading}
+								disabled={updateStatus === "loading"}
 							>
-								<Text>{loading ? "Saving..." : "Save Changes"}</Text>
+								<Text>
+									{updateStatus === "loading" ? "Saving..." : "Save Changes"}
+								</Text>
 							</Button>
 						</View>
 					</CardHeader>
@@ -131,22 +128,26 @@ export const UserDetailContainer = observer(() => {
 						<View className="gap-2">
 							<Label>Name</Label>
 							<Input
-								value={newName}
-								onChangeText={userDetailModel$.setNewName}
+								value={formData.name}
+								onChangeText={(text) =>
+									userDetailModel$.setFormData({ name: text })
+								}
 								placeholder="Enter user name"
-								editable={!loading}
+								editable={updateStatus !== "loading"}
 							/>
 						</View>
 
 						<View className="gap-2">
 							<Label>Email</Label>
 							<Input
-								value={newEmail}
-								onChangeText={userDetailModel$.setNewEmail}
+								value={formData.email}
+								onChangeText={(text) =>
+									userDetailModel$.setFormData({ email: text })
+								}
 								placeholder="Enter email address"
 								keyboardType="email-address"
 								autoCapitalize="none"
-								editable={!loading}
+								editable={updateStatus !== "loading"}
 							/>
 						</View>
 
@@ -165,24 +166,31 @@ export const UserDetailContainer = observer(() => {
 							<Label>Role</Label>
 							<Select
 								value={{
-									value: newRole,
-									label: newRole === "admin" ? "Admin" : "User",
+									value: formData.role,
+									label:
+										ROLE_OPTIONS.find((r) => r.value === formData.role)
+											?.label || "User",
 								}}
 								onValueChange={(option) =>
-									userDetailModel$.setNewRole(option?.value || "user")
+									userDetailModel$.setFormData({
+										role: option?.value || "user",
+									})
 								}
-								disabled={loading}
+								disabled={updateStatus === "loading"}
 							>
 								<SelectTrigger>
 									<SelectValue placeholder="Select role" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="user" label="User">
-										<Text>User</Text>
-									</SelectItem>
-									<SelectItem value="admin" label="Admin">
-										<Text>Admin</Text>
-									</SelectItem>
+									{ROLE_OPTIONS.map((role) => (
+										<SelectItem
+											key={role.value}
+											value={role.value}
+											label={role.label}
+										>
+											<Text>{role.label}</Text>
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
 						</View>
@@ -199,7 +207,7 @@ export const UserDetailContainer = observer(() => {
 											variant="outline"
 											size="sm"
 											onPress={() => userDetailModel$.handleUnbanUser()}
-											disabled={loading}
+											disabled={updateStatus === "loading"}
 										>
 											<Text>Unban User</Text>
 										</Button>
@@ -224,7 +232,7 @@ export const UserDetailContainer = observer(() => {
 										variant="outline"
 										size="sm"
 										onPress={() => userDetailModel$.setBanUserOpen(true)}
-										disabled={loading}
+										disabled={updateStatus === "loading"}
 									>
 										<Text>Ban User</Text>
 									</Button>
@@ -273,7 +281,7 @@ export const UserDetailContainer = observer(() => {
 										variant="outline"
 										size="sm"
 										onPress={() => userDetailModel$.handleResendVerification()}
-										disabled={loading}
+										disabled={updateStatus === "loading"}
 									>
 										<Mail className="mr-2 h-4 w-4" />
 										<Text>Resend Verification</Text>
@@ -283,7 +291,7 @@ export const UserDetailContainer = observer(() => {
 									variant="outline"
 									size="sm"
 									onPress={() => userDetailModel$.handleResetPassword()}
-									disabled={loading}
+									disabled={updateStatus === "loading"}
 								>
 									<Key className="mr-2 h-4 w-4" />
 									<Text>Reset Password</Text>
@@ -292,7 +300,7 @@ export const UserDetailContainer = observer(() => {
 									variant="destructive"
 									size="sm"
 									onPress={() => userDetailModel$.setDeleteUserOpen(true)}
-									disabled={loading}
+									disabled={updateStatus === "loading"}
 								>
 									<Trash2 className="mr-2 h-4 w-4" />
 									<Text>Delete User</Text>
@@ -388,8 +396,10 @@ export const UserDetailContainer = observer(() => {
 						<View className="gap-2">
 							<Label>Ban Reason *</Label>
 							<Input
-								value={banReason}
-								onChangeText={userDetailModel$.setBanReason}
+								value={formData.banReason}
+								onChangeText={(text) =>
+									userDetailModel$.setFormData({ banReason: text })
+								}
 								placeholder="Enter reason for ban"
 								multiline
 								numberOfLines={3}
@@ -398,8 +408,10 @@ export const UserDetailContainer = observer(() => {
 						<View className="gap-2">
 							<Label>Ban Duration (days)</Label>
 							<Input
-								value={banDuration}
-								onChangeText={userDetailModel$.setBanDuration}
+								value={formData.banDuration}
+								onChangeText={(text) =>
+									userDetailModel$.setFormData({ banDuration: text })
+								}
 								placeholder="Leave empty for permanent ban"
 								keyboardType="numeric"
 							/>
@@ -414,10 +426,12 @@ export const UserDetailContainer = observer(() => {
 						</Button>
 						<Button
 							onPress={() => userDetailModel$.handleBanUser()}
-							disabled={loading}
+							disabled={updateStatus === "loading"}
 							variant="destructive"
 						>
-							<Text>{loading ? "Banning..." : "Ban User"}</Text>
+							<Text>
+								{updateStatus === "loading" ? "Banning..." : "Ban User"}
+							</Text>
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -445,10 +459,12 @@ export const UserDetailContainer = observer(() => {
 						</Button>
 						<Button
 							onPress={() => userDetailModel$.handleDeleteUser()}
-							disabled={loading}
+							disabled={updateStatus === "loading"}
 							variant="destructive"
 						>
-							<Text>{loading ? "Deleting..." : "Delete User"}</Text>
+							<Text>
+								{updateStatus === "loading" ? "Deleting..." : "Delete User"}
+							</Text>
 						</Button>
 					</DialogFooter>
 				</DialogContent>

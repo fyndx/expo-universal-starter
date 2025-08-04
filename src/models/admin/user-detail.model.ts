@@ -8,13 +8,28 @@ import { authClient } from "~/lib/auth-client";
 import { toast } from "~/lib/sonner/sonner";
 import type { ApiStatus } from "~/utils/api";
 
+// Role options for user management
+export const ROLE_OPTIONS = [
+	{ label: "User", value: "user" },
+	{ label: "Admin", value: "admin" },
+];
+
+// Extended user interface with admin-specific fields
 export interface User extends BetterAuthUser {
 	banned?: boolean;
 	banReason?: string;
 	banExpires?: string;
 	lastLogin?: string;
+	role?: string;
 }
 
+// Extended session type to include additional fields from Better Auth
+interface ExtendedBetterAuthSession extends BetterAuthSession {
+	userAgent?: string;
+	ipAddress?: string;
+}
+
+// Extended session interface with display fields
 export interface Session extends BetterAuthSession {
 	device?: string;
 	location?: string;
@@ -22,66 +37,72 @@ export interface Session extends BetterAuthSession {
 	current?: boolean;
 }
 
+/**
+ * UserDetailModel handles user management operations for admin interface
+ * Manages user data, sessions, and form state
+ */
 export class UserDetailModel {
 	obs: Observable<{
+		// Data state
 		status: ApiStatus;
 		user?: User | null;
 		sessions: Session[];
 		sessionsStatus: ApiStatus;
 		error?: string | null;
 
-		// UI State
-		editNameOpen: boolean;
-		editEmailOpen: boolean;
+		// Update operations status
+		updateStatus: ApiStatus;
+
+		// UI state for modals
 		banUserOpen: boolean;
 		deleteUserOpen: boolean;
-		loading: boolean;
+	}>;
 
-		// Form State
-		newName: string;
-		newEmail: string;
-		newRole: string;
+	// Form data observable for all form fields
+	formData$: Observable<{
+		name: string;
+		email: string;
+		role: string;
 		banReason: string;
 		banDuration: string;
 	}>;
 
-	// Form observable with Partial User
-	formData$: Observable<Partial<User>>;
-
 	constructor() {
 		this.obs = observable({
+			// Data state
 			status: "idle" as ApiStatus,
+			user: null as User | null,
 			sessions: [] as Session[],
 			sessionsStatus: "idle" as ApiStatus,
-			user: null as User | null,
 			error: null as string | null,
 
-			// UI State
-			editNameOpen: false,
-			editEmailOpen: false,
+			// Update operations status
+			updateStatus: "idle" as ApiStatus,
+
+			// UI state for modals only
 			banUserOpen: false,
 			deleteUserOpen: false,
-			loading: false,
-
-			// Form State
-			newName: "",
-			newEmail: "",
-			newRole: "",
-			banReason: "",
-			banDuration: "",
 		});
 
 		this.formData$ = observable({
 			name: "",
 			email: "",
-		} as Partial<User>);
+			role: "user",
+			banReason: "",
+			banDuration: "",
+		});
 	}
 
+	// =============================================================================
+	// DATA FETCHING METHODS
+	// =============================================================================
+
+	/**
+	 * Fetches user data by ID
+	 */
 	async fetchUserById({ id }: { id: string }): Promise<void> {
-		this.obs.set({
-			...this.obs.peek(),
-			status: "loading",
-		});
+		this.obs.status.set("loading");
+		this.obs.error.set(null);
 
 		try {
 			const { data, error } = await authClient.admin.listUsers({
@@ -102,25 +123,21 @@ export class UserDetailModel {
 				throw new Error("User not found");
 			}
 
-			this.obs.set({
-				...this.obs.peek(),
-				status: "success",
-				user: user as User,
-				error: null,
-			});
+			this.obs.status.set("success");
+			this.obs.user.set(user as User);
+			this.initializeFormData(user as User);
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Failed to fetch user";
-			this.obs.set({
-				...this.obs.peek(),
-				status: "error",
-				user: null,
-				error: errorMessage,
-			});
+			const errorMessage = this.getErrorMessage(error, "Failed to fetch user");
+			this.obs.status.set("error");
+			this.obs.user.set(null);
+			this.obs.error.set(errorMessage);
 			toast.error(errorMessage);
 		}
 	}
 
+	/**
+	 * Fetches user sessions by user ID
+	 */
 	async fetchUserSessionsById({ id }: { id: string }): Promise<void> {
 		this.obs.sessionsStatus.set("loading");
 
@@ -133,34 +150,37 @@ export class UserDetailModel {
 				throw new Error(error.message || "Failed to fetch user sessions");
 			}
 
-			// Transform the API response to match our Session interface
-			const sessions: Session[] =
-				data?.sessions?.map((session) => ({
-					...session,
-					device: session.userAgent || "Unknown Device",
-					location: session.ipAddress || "Unknown Location",
-					lastActive: session.updatedAt
-						? new Date(session.updatedAt).toLocaleString()
-						: "Unknown",
-					current: session.id === data.sessions[0]?.id, // Assume first session is current
-				})) || [];
-
+			const sessions: Session[] = this.transformSessions(data?.sessions || []);
 			this.obs.sessions.set(sessions);
 			this.obs.sessionsStatus.set("success");
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Failed to load sessions";
+			const errorMessage = this.getErrorMessage(
+				error,
+				"Failed to load sessions",
+			);
 			this.obs.sessionsStatus.set("error");
 			this.obs.error.set(errorMessage);
 			toast.error(errorMessage);
 		}
 	}
 
-	async updateUser(userId: string, updates: Partial<User>): Promise<void> {
+	// =============================================================================
+	// USER MANAGEMENT METHODS
+	// =============================================================================
+
+	/**
+	 * Updates user data
+	 */
+	async updateUser({
+		userId,
+		updates,
+	}: {
+		userId: string;
+		updates: Partial<User>;
+	}): Promise<void> {
 		try {
-			// Use Better Auth admin API to update user
 			const { error } = await authClient.admin.updateUser({
-				userId: userId,
+				userId,
 				data: updates,
 			});
 
@@ -168,295 +188,18 @@ export class UserDetailModel {
 				throw new Error(error.message);
 			}
 
-			// Refresh user data
 			await this.fetchUserById({ id: userId });
 			toast.success("User updated successfully");
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Failed to update user";
+			const errorMessage = this.getErrorMessage(error, "Failed to update user");
 			toast.error(errorMessage);
+			throw error;
 		}
 	}
 
-	async deleteUser(userId: string): Promise<void> {
-		try {
-			// Mock delete for now - Better Auth doesn't have deleteUser in admin
-			// You would need to implement this API endpoint
-			console.log("Deleting user:", userId);
-
-			toast.success("User deleted successfully");
-			router.back();
-		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Failed to delete user";
-			toast.error(errorMessage);
-		}
-	}
-
-	async revokeSession(userId: string, sessionId?: string): Promise<void> {
-		try {
-			// Mock session revocation for now - Better Auth admin API needs specific session token
-			console.log("Revoking session:", { userId, sessionId });
-
-			// Refresh sessions
-			await this.fetchUserSessionsById({ id: userId });
-			toast.success(
-				sessionId
-					? "Session revoked successfully"
-					: "All sessions revoked successfully",
-			);
-		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Failed to revoke session";
-			toast.error(errorMessage);
-		}
-	}
-
-	async resendVerificationEmail(email: string): Promise<void> {
-		try {
-			// Use Better Auth API to resend verification email
-			const { error } = await authClient.sendVerificationEmail({
-				email,
-			});
-
-			if (error) {
-				throw new Error(error.message);
-			}
-
-			toast.success("Verification email sent successfully");
-		} catch (error) {
-			const errorMessage =
-				error instanceof Error
-					? error.message
-					: "Failed to send verification email";
-			toast.error(errorMessage);
-		}
-	}
-
-	async resetPassword(email: string): Promise<void> {
-		try {
-			// Use Better Auth API to send password reset email
-			const { error } = await authClient.forgetPassword({
-				email,
-			});
-
-			if (error) {
-				throw new Error(error.message);
-			}
-
-			toast.success("Password reset email sent successfully");
-		} catch (error) {
-			const errorMessage =
-				error instanceof Error
-					? error.message
-					: "Failed to send password reset email";
-			toast.error(errorMessage);
-		}
-	}
-
-	// UI State Management Methods
-	setEditNameOpen(open: boolean): void {
-		this.obs.editNameOpen.set(open);
-	}
-
-	setEditEmailOpen(open: boolean): void {
-		this.obs.editEmailOpen.set(open);
-	}
-
-	setBanUserOpen(open: boolean): void {
-		this.obs.banUserOpen.set(open);
-	}
-
-	setDeleteUserOpen(open: boolean): void {
-		this.obs.deleteUserOpen.set(open);
-	}
-
-	// Form State Management Methods
-	setNewName(name: string): void {
-		this.obs.newName.set(name);
-	}
-
-	setNewEmail(email: string): void {
-		this.obs.newEmail.set(email);
-	}
-
-	setNewRole(role: string): void {
-		this.obs.newRole.set(role);
-	}
-
-	setBanReason(reason: string): void {
-		this.obs.banReason.set(reason);
-	}
-
-	setBanDuration(duration: string): void {
-		this.obs.banDuration.set(duration);
-	}
-
-	// Initialize form data when user is loaded
-	initializeFormData(user: User): void {
-		this.obs.newName.set(user.name || "");
-		this.obs.newEmail.set(user.email);
-		this.obs.newRole.set("user"); // Default role since Better Auth doesn't expose user role in the user object
-		this.formData$.set({
-			name: user.name || "",
-			email: user.email,
-		});
-	}
-
-	// Action Methods
-	async handleUpdateName(): Promise<void> {
-		const { newName, user } = this.obs.peek();
-		if (!newName.trim() || !user?.id) {
-			return;
-		}
-
-		this.obs.loading.set(true);
-		try {
-			await this.updateUser(user.id, { name: newName.trim() });
-			this.obs.editNameOpen.set(false);
-		} finally {
-			this.obs.loading.set(false);
-		}
-	}
-
-	async handleUpdateEmail(): Promise<void> {
-		const { newEmail, user } = this.obs.peek();
-		if (!newEmail.trim() || !user?.id) {
-			return;
-		}
-
-		this.obs.loading.set(true);
-		try {
-			await this.updateUser(user.id, {
-				email: newEmail.trim(),
-				emailVerified: false,
-			});
-			this.obs.editEmailOpen.set(false);
-		} finally {
-			this.obs.loading.set(false);
-		}
-	}
-
-	async handleBanUser(): Promise<void> {
-		const { banReason, banDuration, user } = this.obs.peek();
-		if (!banReason.trim() || !user?.id) {
-			return;
-		}
-
-		this.obs.loading.set(true);
-		try {
-			const updates: Partial<User> = {
-				banned: true,
-				banReason: banReason.trim(),
-			};
-
-			if (banDuration) {
-				const banDate = new Date();
-				banDate.setDate(banDate.getDate() + parseInt(banDuration));
-				updates.banExpires = banDate.toISOString();
-			}
-
-			await this.updateUser(user.id, updates);
-			this.obs.banUserOpen.set(false);
-			this.obs.banReason.set("");
-			this.obs.banDuration.set("");
-		} finally {
-			this.obs.loading.set(false);
-		}
-	}
-
-	async handleUnbanUser(): Promise<void> {
-		const { user } = this.obs.peek();
-		if (!user?.id) return;
-
-		this.obs.loading.set(true);
-		try {
-			await this.updateUser(user.id, {
-				banned: false,
-				banReason: undefined,
-				banExpires: undefined,
-			});
-		} finally {
-			this.obs.loading.set(false);
-		}
-	}
-
-	async handleDeleteUser(): Promise<void> {
-		const { user } = this.obs.peek();
-		if (!user?.id) return;
-
-		this.obs.loading.set(true);
-		try {
-			await this.deleteUser(user.id);
-			this.obs.deleteUserOpen.set(false);
-		} finally {
-			this.obs.loading.set(false);
-		}
-	}
-
-	async handleSessionRevoke({
-		userId,
-		sessionId,
-	}: {
-		userId: string;
-		sessionId?: string;
-	}): Promise<void> {
-		await this.revokeSession(userId, sessionId);
-	}
-
-	async handleResendVerification(): Promise<void> {
-		const { user } = this.obs.peek();
-		if (user?.email) {
-			await this.resendVerificationEmail(user.email);
-		}
-	}
-
-	async handleResetPassword(): Promise<void> {
-		const { user } = this.obs.peek();
-		if (user?.email) {
-			await this.resetPassword(user.email);
-		}
-	}
-
-	// Save form changes method
-	async handleSaveChanges(): Promise<void> {
-		const { newName, newEmail, newRole, user } = this.obs.peek();
-		if (!user?.id) return;
-
-		// Check if there are any changes
-		const hasNameChange = newName.trim() !== (user.name || "");
-		const hasEmailChange = newEmail.trim() !== user.email;
-		const hasRoleChange = newRole !== "user"; // Assume current role is "user" as default
-
-		if (!hasNameChange && !hasEmailChange && !hasRoleChange) {
-			toast.info("No changes to save");
-			return;
-		}
-
-		this.obs.loading.set(true);
-		try {
-			const updates: Partial<User> = {};
-
-			if (hasNameChange) {
-				updates.name = newName.trim();
-			}
-
-			if (hasEmailChange) {
-				updates.email = newEmail.trim();
-				updates.emailVerified = false; // Reset email verification when email changes
-			}
-
-			if (hasNameChange || hasEmailChange) {
-				await this.updateUser(user.id, updates);
-			}
-
-			if (hasRoleChange) {
-				await this.updateUserRole({ userId: user.id, role: newRole });
-			}
-		} finally {
-			this.obs.loading.set(false);
-		}
-	}
+	/**
+	 * Updates user role
+	 */
 	async updateUserRole({
 		userId,
 		role,
@@ -474,13 +217,371 @@ export class UserDetailModel {
 				throw new Error(error.message);
 			}
 
-			// Refresh user data
 			await this.fetchUserById({ id: userId });
 			toast.success("User role updated successfully");
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Failed to update user role";
+			const errorMessage = this.getErrorMessage(
+				error,
+				"Failed to update user role",
+			);
 			toast.error(errorMessage);
+			throw error;
 		}
+	}
+
+	/**
+	 * Deletes user (placeholder implementation)
+	 */
+	async deleteUser({ userId }: { userId: string }): Promise<void> {
+		try {
+			// TODO: Implement actual user deletion when Better Auth supports it
+			console.log("Deleting user:", userId);
+
+			toast.success("User deleted successfully");
+			router.back();
+		} catch (error) {
+			const errorMessage = this.getErrorMessage(error, "Failed to delete user");
+			toast.error(errorMessage);
+			throw error;
+		}
+	}
+
+	// =============================================================================
+	// SESSION MANAGEMENT METHODS
+	// =============================================================================
+
+	/**
+	 * Revokes user session(s)
+	 */
+	async revokeSession({
+		userId,
+		sessionId,
+	}: {
+		userId: string;
+		sessionId?: string;
+	}): Promise<void> {
+		try {
+			// TODO: Implement actual session revocation when Better Auth supports it
+			console.log("Revoking session:", { userId, sessionId });
+
+			await this.fetchUserSessionsById({ id: userId });
+			toast.success(
+				sessionId
+					? "Session revoked successfully"
+					: "All sessions revoked successfully",
+			);
+		} catch (error) {
+			const errorMessage = this.getErrorMessage(
+				error,
+				"Failed to revoke session",
+			);
+			toast.error(errorMessage);
+			throw error;
+		}
+	}
+
+	// =============================================================================
+	// EMAIL METHODS
+	// =============================================================================
+
+	/**
+	 * Resends verification email
+	 */
+	async resendVerificationEmail({ email }: { email: string }): Promise<void> {
+		try {
+			const { error } = await authClient.sendVerificationEmail({ email });
+
+			if (error) {
+				throw new Error(error.message);
+			}
+
+			toast.success("Verification email sent successfully");
+		} catch (error) {
+			const errorMessage = this.getErrorMessage(
+				error,
+				"Failed to send verification email",
+			);
+			toast.error(errorMessage);
+			throw error;
+		}
+	}
+
+	/**
+	 * Sends password reset email
+	 */
+	async resetPassword({ email }: { email: string }): Promise<void> {
+		try {
+			const { error } = await authClient.forgetPassword({ email });
+
+			if (error) {
+				throw new Error(error.message);
+			}
+
+			toast.success("Password reset email sent successfully");
+		} catch (error) {
+			const errorMessage = this.getErrorMessage(
+				error,
+				"Failed to send password reset email",
+			);
+			toast.error(errorMessage);
+			throw error;
+		}
+	}
+
+	// =============================================================================
+	// UI STATE METHODS
+	// =============================================================================
+
+	setBanUserOpen(open: boolean): void {
+		this.obs.banUserOpen.set(open);
+	}
+
+	setDeleteUserOpen(open: boolean): void {
+		this.obs.deleteUserOpen.set(open);
+	}
+
+	// =============================================================================
+	// FORM STATE METHODS
+	// =============================================================================
+
+	setFormData(
+		updates: Partial<{
+			name: string;
+			email: string;
+			role: string;
+			banReason: string;
+			banDuration: string;
+		}>,
+	): void {
+		this.formData$.assign(updates);
+	}
+
+	/**
+	 * Initializes form data when user is loaded
+	 */
+	initializeFormData(user: User): void {
+		this.formData$.set({
+			name: user.name || "",
+			email: user.email,
+			role: user.role || "user",
+			banReason: "",
+			banDuration: "",
+		});
+	}
+
+	// =============================================================================
+	// ACTION HANDLERS
+	// =============================================================================
+
+	/**
+	 * Handles user ban form submission
+	 */
+	async handleBanUser(): Promise<void> {
+		const { banReason, banDuration } = this.formData$.peek();
+		const { user } = this.obs.peek();
+		if (!banReason.trim() || !user?.id) {
+			return;
+		}
+
+		this.obs.updateStatus.set("loading");
+		try {
+			const updates: Partial<User> = {
+				banned: true,
+				banReason: banReason.trim(),
+			};
+
+			if (banDuration) {
+				const banDate = new Date();
+				banDate.setDate(banDate.getDate() + parseInt(banDuration));
+				updates.banExpires = banDate.toISOString();
+			}
+
+			await this.updateUser({ userId: user.id, updates });
+			this.resetBanForm();
+			this.obs.updateStatus.set("success");
+		} catch (_error) {
+			this.obs.updateStatus.set("error");
+		}
+	}
+
+	/**
+	 * Handles user unban action
+	 */
+	async handleUnbanUser(): Promise<void> {
+		const { user } = this.obs.peek();
+		if (!user?.id) return;
+
+		this.obs.updateStatus.set("loading");
+		try {
+			await this.updateUser({
+				userId: user.id,
+				updates: {
+					banned: false,
+					banReason: undefined,
+					banExpires: undefined,
+				},
+			});
+			this.obs.updateStatus.set("success");
+		} catch (_error) {
+			this.obs.updateStatus.set("error");
+		}
+	}
+
+	/**
+	 * Handles user deletion
+	 */
+	async handleDeleteUser(): Promise<void> {
+		const { user } = this.obs.peek();
+		if (!user?.id) return;
+
+		this.obs.updateStatus.set("loading");
+		try {
+			await this.deleteUser({ userId: user.id });
+			this.obs.deleteUserOpen.set(false);
+			this.obs.updateStatus.set("success");
+		} catch (_error) {
+			this.obs.updateStatus.set("error");
+		}
+	}
+
+	/**
+	 * Handles session revocation
+	 */
+	async handleSessionRevoke({
+		userId,
+		sessionId,
+	}: {
+		userId: string;
+		sessionId?: string;
+	}): Promise<void> {
+		await this.revokeSession({ userId, sessionId });
+	}
+
+	/**
+	 * Handles resend verification email
+	 */
+	async handleResendVerification(): Promise<void> {
+		const { user } = this.obs.peek();
+		if (user?.email) {
+			await this.resendVerificationEmail({ email: user.email });
+		}
+	}
+
+	/**
+	 * Handles reset password
+	 */
+	async handleResetPassword(): Promise<void> {
+		const { user } = this.obs.peek();
+		if (user?.email) {
+			await this.resetPassword({ email: user.email });
+		}
+	}
+
+	/**
+	 * Handles save all form changes
+	 */
+	async handleSaveChanges(): Promise<void> {
+		const formData = this.formData$.peek();
+		const { user } = this.obs.peek();
+		if (!user?.id) return;
+
+		const changes = this.getFormChanges(user, formData);
+
+		if (changes.length === 0) {
+			toast.info("No changes to save");
+			return;
+		}
+
+		this.obs.updateStatus.set("loading");
+		try {
+			for (const change of changes) {
+				await change();
+			}
+			this.obs.updateStatus.set("success");
+		} catch (_error) {
+			this.obs.updateStatus.set("error");
+		}
+	}
+
+	// =============================================================================
+	// UTILITY METHODS
+	// =============================================================================
+
+	/**
+	 * Transforms session data from API to display format
+	 */
+	private transformSessions(sessions: BetterAuthSession[]): Session[] {
+		return sessions.map((session, index) => ({
+			...session,
+			device:
+				(session as ExtendedBetterAuthSession).userAgent || "Unknown Device",
+			location:
+				(session as ExtendedBetterAuthSession).ipAddress || "Unknown Location",
+			lastActive: session.updatedAt
+				? new Date(session.updatedAt).toLocaleString()
+				: "Unknown",
+			current: index === 0, // Assume first session is current
+		}));
+	}
+
+	/**
+	 * Gets standardized error message
+	 */
+	private getErrorMessage(error: unknown, fallback: string): string {
+		return error instanceof Error ? error.message : fallback;
+	}
+
+	/**
+	 * Resets ban form state
+	 */
+	private resetBanForm(): void {
+		this.obs.banUserOpen.set(false);
+		this.formData$.banReason.set("");
+		this.formData$.banDuration.set("");
+	}
+
+	/**
+	 * Determines what changes need to be applied and returns functions to apply them
+	 */
+	private getFormChanges(
+		user: User,
+		form: {
+			name: string;
+			email: string;
+			role: string;
+			banReason: string;
+			banDuration: string;
+		},
+	): Array<() => Promise<void>> {
+		const changes: Array<() => Promise<void>> = [];
+
+		const hasNameChange = form.name.trim() !== (user.name || "");
+		const hasEmailChange = form.email.trim() !== user.email;
+		const hasRoleChange = form.role !== (user.role || "user");
+
+		if (hasNameChange || hasEmailChange) {
+			changes.push(async () => {
+				const updates: Partial<User> = {};
+
+				if (hasNameChange) {
+					updates.name = form.name.trim();
+				}
+
+				if (hasEmailChange) {
+					updates.email = form.email.trim();
+					updates.emailVerified = false;
+				}
+
+				await this.updateUser({ userId: user.id, updates });
+			});
+		}
+
+		if (hasRoleChange) {
+			changes.push(async () => {
+				await this.updateUserRole({ userId: user.id, role: form.role });
+			});
+		}
+
+		return changes;
 	}
 }
