@@ -241,12 +241,17 @@ export class UserDetailModel {
 	}
 
 	/**
-	 * Deletes user (placeholder implementation)
+	 * Deletes user using Better Auth removeUser API
 	 */
 	async deleteUser({ userId }: { userId: string }): Promise<void> {
 		try {
-			// TODO: Implement actual user deletion when Better Auth supports it
-			console.log("Deleting user:", userId);
+			const { error } = await authClient.admin.removeUser({
+				userId,
+			});
+
+			if (error) {
+				throw new Error(error.message);
+			}
 
 			toast.success("User deleted successfully");
 			router.back();
