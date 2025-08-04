@@ -43,7 +43,9 @@ export const UserDetailContainer = observer(() => {
 		sessionsStatus,
 		banUserOpen,
 		deleteUserOpen,
-		updateStatus,
+		saveStatus,
+		banStatus,
+		deleteStatus,
 		resendVerificationStatus,
 		resetPasswordStatus,
 		revokeSessionStatus,
@@ -114,17 +116,17 @@ export const UserDetailContainer = observer(() => {
 								variant="outline"
 								size="sm"
 								onPress={() => userDetailModel$.initializeFormData(user)}
-								disabled={updateStatus === "loading"}
+								disabled={saveStatus === "loading"}
 							>
 								<Text>Reset</Text>
 							</Button>
 							<Button
 								size="sm"
 								onPress={() => userDetailModel$.handleSaveChanges()}
-								disabled={updateStatus === "loading"}
+								disabled={saveStatus === "loading"}
 							>
 								<Text>
-									{updateStatus === "loading" ? "Saving..." : "Save Changes"}
+									{saveStatus === "loading" ? "Saving..." : "Save Changes"}
 								</Text>
 							</Button>
 						</View>
@@ -138,7 +140,7 @@ export const UserDetailContainer = observer(() => {
 									userDetailModel$.setFormData({ name: text })
 								}
 								placeholder="Enter user name"
-								editable={updateStatus !== "loading"}
+								editable={saveStatus !== "loading"}
 							/>
 						</View>
 
@@ -152,7 +154,7 @@ export const UserDetailContainer = observer(() => {
 								placeholder="Enter email address"
 								keyboardType="email-address"
 								autoCapitalize="none"
-								editable={updateStatus !== "loading"}
+								editable={saveStatus !== "loading"}
 							/>
 						</View>
 
@@ -183,7 +185,7 @@ export const UserDetailContainer = observer(() => {
 										role: option?.value || "user",
 									})
 								}
-								disabled={updateStatus === "loading"}
+								disabled={saveStatus === "loading"}
 							>
 								<SelectTrigger>
 									<SelectValue placeholder="Select role" />
@@ -214,9 +216,11 @@ export const UserDetailContainer = observer(() => {
 											variant="outline"
 											size="sm"
 											onPress={() => userDetailModel$.handleUnbanUser()}
-											disabled={updateStatus === "loading"}
+											disabled={banStatus === "loading"}
 										>
-											<Text>Unban User</Text>
+											<Text>
+												{banStatus === "loading" ? "Unbanning..." : "Unban User"}
+											</Text>
 										</Button>
 									</View>
 									{user.banReason && (
@@ -239,7 +243,7 @@ export const UserDetailContainer = observer(() => {
 										variant="outline"
 										size="sm"
 										onPress={() => userDetailModel$.setBanUserOpen(true)}
-										disabled={updateStatus === "loading"}
+										disabled={banStatus === "loading"}
 									>
 										<Text>Ban User</Text>
 									</Button>
@@ -321,7 +325,7 @@ export const UserDetailContainer = observer(() => {
 									variant="destructive"
 									size="sm"
 									onPress={() => userDetailModel$.setDeleteUserOpen(true)}
-									disabled={updateStatus === "loading"}
+									disabled={deleteStatus === "loading"}
 									className="flex-row items-center"
 								>
 									<Text>
@@ -490,11 +494,11 @@ export const UserDetailContainer = observer(() => {
 						</Button>
 						<Button
 							onPress={() => userDetailModel$.handleBanUser()}
-							disabled={updateStatus === "loading"}
+							disabled={banStatus === "loading"}
 							variant="destructive"
 						>
 							<Text>
-								{updateStatus === "loading" ? "Banning..." : "Ban User"}
+								{banStatus === "loading" ? "Banning..." : "Ban User"}
 							</Text>
 						</Button>
 					</DialogFooter>
@@ -523,11 +527,11 @@ export const UserDetailContainer = observer(() => {
 						</Button>
 						<Button
 							onPress={() => userDetailModel$.handleDeleteUser()}
-							disabled={updateStatus === "loading"}
+							disabled={deleteStatus === "loading"}
 							variant="destructive"
 						>
 							<Text>
-								{updateStatus === "loading" ? "Deleting..." : "Delete User"}
+								{deleteStatus === "loading" ? "Deleting..." : "Delete User"}
 							</Text>
 						</Button>
 					</DialogFooter>

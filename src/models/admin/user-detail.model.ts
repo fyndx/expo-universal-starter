@@ -62,8 +62,10 @@ export class UserDetailModel {
 		sessionsStatus: ApiStatus;
 		error?: string | null;
 
-		// Update operations status
-		updateStatus: ApiStatus;
+		// Mutation operations status
+		saveStatus: ApiStatus;
+		banStatus: ApiStatus;
+		deleteStatus: ApiStatus;
 
 		// Email operations status
 		resendVerificationStatus: ApiStatus;
@@ -96,8 +98,10 @@ export class UserDetailModel {
 			sessionsStatus: "idle" as ApiStatus,
 			error: null as string | null,
 
-			// Update operations status
-			updateStatus: "idle" as ApiStatus,
+			// Mutation operations status
+			saveStatus: "idle" as ApiStatus,
+			banStatus: "idle" as ApiStatus,
+			deleteStatus: "idle" as ApiStatus,
 
 			// Email operations status
 			resendVerificationStatus: "idle" as ApiStatus,
@@ -107,7 +111,7 @@ export class UserDetailModel {
 			revokeSessionStatus: "idle" as ApiStatus,
 			revokeAllSessionsStatus: "idle" as ApiStatus,
 
-			// UI state for modals only
+			// UI state for modals
 			banUserOpen: false,
 			deleteUserOpen: false,
 		});
@@ -462,7 +466,7 @@ export class UserDetailModel {
 			return;
 		}
 
-		this.obs.updateStatus.set("loading");
+		this.obs.banStatus.set("loading");
 		try {
 			let banExpiresIn: number | undefined;
 
@@ -483,11 +487,11 @@ export class UserDetailModel {
 
 			await this.fetchUserById({ id: user.id });
 			this.resetBanForm();
-			this.obs.updateStatus.set("success");
+			this.obs.banStatus.set("success");
 			toast.success("User banned successfully");
 		} catch (error) {
 			const errorMessage = this.getErrorMessage(error, "Failed to ban user");
-			this.obs.updateStatus.set("error");
+			this.obs.banStatus.set("error");
 			toast.error(errorMessage);
 		}
 	}
@@ -499,7 +503,7 @@ export class UserDetailModel {
 		const { user } = this.obs.peek();
 		if (!user?.id) return;
 
-		this.obs.updateStatus.set("loading");
+		this.obs.banStatus.set("loading");
 		try {
 			const { error } = await authClient.admin.unbanUser({
 				userId: user.id,
@@ -510,11 +514,11 @@ export class UserDetailModel {
 			}
 
 			await this.fetchUserById({ id: user.id });
-			this.obs.updateStatus.set("success");
+			this.obs.banStatus.set("success");
 			toast.success("User unbanned successfully");
 		} catch (error) {
 			const errorMessage = this.getErrorMessage(error, "Failed to unban user");
-			this.obs.updateStatus.set("error");
+			this.obs.banStatus.set("error");
 			toast.error(errorMessage);
 		}
 	}
@@ -526,13 +530,13 @@ export class UserDetailModel {
 		const { user } = this.obs.peek();
 		if (!user?.id) return;
 
-		this.obs.updateStatus.set("loading");
+		this.obs.deleteStatus.set("loading");
 		try {
 			await this.deleteUser({ userId: user.id });
 			this.obs.deleteUserOpen.set(false);
-			this.obs.updateStatus.set("success");
+			this.obs.deleteStatus.set("success");
 		} catch (_error) {
-			this.obs.updateStatus.set("error");
+			this.obs.deleteStatus.set("error");
 		}
 	}
 
@@ -591,14 +595,14 @@ export class UserDetailModel {
 			return;
 		}
 
-		this.obs.updateStatus.set("loading");
+		this.obs.saveStatus.set("loading");
 		try {
 			for (const change of changes) {
 				await change();
 			}
-			this.obs.updateStatus.set("success");
+			this.obs.saveStatus.set("success");
 		} catch (_error) {
-			this.obs.updateStatus.set("error");
+			this.obs.saveStatus.set("error");
 		}
 	}
 
