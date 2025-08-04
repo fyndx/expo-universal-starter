@@ -101,7 +101,9 @@ export const UserTableRow = React.memo(
 						className="flex-row items-center"
 						onPress={handleViewDetails}
 					>
-						<Eye className="h-4 w-4 mr-2" />
+						<Text>
+							<Eye className="h-4 w-4 mr-2" />
+						</Text>
 						<Text>View User</Text>
 					</Button>
 				</TableCell>
