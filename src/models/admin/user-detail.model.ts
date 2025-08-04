@@ -46,6 +46,7 @@ export interface Session extends BetterAuthSession {
 	location?: string;
 	lastActive?: string;
 	current?: boolean;
+	expired?: boolean;
 }
 
 /**
@@ -67,6 +68,10 @@ export class UserDetailModel {
 		// Email operations status
 		resendVerificationStatus: ApiStatus;
 		resetPasswordStatus: ApiStatus;
+
+		// Session operations status
+		revokeSessionStatus: ApiStatus;
+		revokeAllSessionsStatus: ApiStatus;
 
 		// UI state for modals
 		banUserOpen: boolean;
@@ -97,6 +102,10 @@ export class UserDetailModel {
 			// Email operations status
 			resendVerificationStatus: "idle" as ApiStatus,
 			resetPasswordStatus: "idle" as ApiStatus,
+
+			// Session operations status
+			revokeSessionStatus: "idle" as ApiStatus,
+			revokeAllSessionsStatus: "idle" as ApiStatus,
 
 			// UI state for modals only
 			banUserOpen: false,
@@ -275,30 +284,64 @@ export class UserDetailModel {
 	// =============================================================================
 
 	/**
-	 * Revokes user session(s)
+	 * Revokes a specific user session
 	 */
-	async revokeSession({
+	async revokeSingleSession({
 		userId,
 		sessionId,
 	}: {
 		userId: string;
-		sessionId?: string;
+		sessionId: string;
 	}): Promise<void> {
-		try {
-			// TODO: Implement actual session revocation when Better Auth supports it
-			console.log("Revoking session:", { userId, sessionId });
+		this.obs.revokeSessionStatus.set("loading");
 
+		try {
+			const { error } = await authClient.admin.revokeUserSession({
+				sessionToken: sessionId,
+			});
+
+			if (error) {
+				throw new Error(error.message);
+			}
+
+			this.obs.revokeSessionStatus.set("success");
 			await this.fetchUserSessionsById({ id: userId });
-			toast.success(
-				sessionId
-					? "Session revoked successfully"
-					: "All sessions revoked successfully",
-			);
+			toast.success("Session revoked successfully");
 		} catch (error) {
 			const errorMessage = this.getErrorMessage(
 				error,
 				"Failed to revoke session",
 			);
+			this.obs.revokeSessionStatus.set("error");
+			toast.error(errorMessage);
+			throw error;
+		}
+	}
+
+	/**
+	 * Revokes all user sessions
+	 */
+	async revokeAllSessions({ userId }: { userId: string }): Promise<void> {
+		this.obs.revokeAllSessionsStatus.set("loading");
+
+		try {
+			const { error } = await authClient.admin.revokeUserSessions({
+				userId,
+			});
+
+			if (error) {
+				throw new Error(error.message);
+			}
+
+			this.obs.revokeAllSessionsStatus.set("success");
+			await this.fetchUserSessionsById({ id: userId });
+			toast.success("All sessions revoked successfully");
+		} catch (error) {
+			const errorMessage = this.getErrorMessage(
+				error,
+				"Failed to revoke all sessions",
+			);
+			this.obs.revokeAllSessionsStatus.set("error");
 			toast.error(errorMessage);
 			throw error;
 		}
@@ -488,16 +531,23 @@ export class UserDetailModel {
 	}
 
 	/**
-	 * Handles session revocation
+	 * Handles single session revocation
 	 */
 	async handleSessionRevoke({
 		userId,
 		sessionId,
 	}: {
 		userId: string;
-		sessionId?: string;
+		sessionId: string;
 	}): Promise<void> {
-		await this.revokeSession({ userId, sessionId });
+		await this.revokeSingleSession({ userId, sessionId });
+	}
+
+	/**
+	 * Handles all sessions revocation
+	 */
+	async handleAllSessionsRevoke({ userId }: { userId: string }): Promise<void> {
+		await this.revokeAllSessions({ userId });
 	}
 
 	/**
@@ -554,17 +604,101 @@ export class UserDetailModel {
 	 * Transforms session data from API to display format
 	 */
 	private transformSessions(sessions: BetterAuthSession[]): Session[] {
-		return sessions.map((session, index) => ({
-			...session,
-			device:
-				(session as ExtendedBetterAuthSession).userAgent || "Unknown Device",
-			location:
-				(session as ExtendedBetterAuthSession).ipAddress || "Unknown Location",
-			lastActive: session.updatedAt
-				? new Date(session.updatedAt).toLocaleString()
-				: "Unknown",
-			current: index === 0, // Assume first session is current
-		}));
+		const now = new Date();
+		const currentSessionId = this.findCurrentSessionId(sessions);
+
+		return sessions.map((session) => {
+			const expiresAt = session.expiresAt ? new Date(session.expiresAt) : null;
+			const isExpired = expiresAt ? now > expiresAt : false;
+			const isCurrent = currentSessionId === session.id;
+
+			return {
+				...session,
+				device: this.parseUserAgent(
+					(session as ExtendedBetterAuthSession).userAgent || "",
+				),
+				location:
+					(session as ExtendedBetterAuthSession).ipAddress ||
+					"Unknown Location",
+				lastActive: session.updatedAt
+					? new Date(session.updatedAt).toLocaleString()
+					: "Unknown",
+				current: isCurrent,
+				expired: isExpired,
+			};
+		});
+	}
+
+	/**
+	 * Finds the ID of the current (most recently active and not expired) session
+	 */
+	private findCurrentSessionId(sessions: BetterAuthSession[]): string | null {
+		if (sessions.length === 0) return null;
+
+		const now = new Date();
+		let mostRecentActiveSession: BetterAuthSession | null = null;
+		let mostRecentActiveTime = 0;
+
+		for (const session of sessions) {
+			const expiresAt = session.expiresAt ? new Date(session.expiresAt) : null;
+			const isExpired = expiresAt ? now > expiresAt : false;
+
+			if (!isExpired && session.updatedAt) {
+				const updateTime = new Date(session.updatedAt).getTime();
+				if (updateTime > mostRecentActiveTime) {
+					mostRecentActiveTime = updateTime;
+					mostRecentActiveSession = session;
+				}
+			}
+		}
+
+		return mostRecentActiveSession?.id ?? null;
+	}
+
+	/**
+	 * Parses user agent string to extract user-friendly device/browser info
+	 */
+	private parseUserAgent(userAgent: string): string {
+		if (!userAgent) return "Unknown Device";
+
+		// Browser detection
+		let browser = "Unknown Browser";
+		let os = "Unknown OS";
+
+		// Browser patterns
+		if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) {
+			browser = "Chrome";
+		} else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
+			browser = "Safari";
+		} else if (userAgent.includes("Firefox")) {
+			browser = "Firefox";
+		} else if (userAgent.includes("Edg")) {
+			browser = "Edge";
+		} else if (userAgent.includes("Opera") || userAgent.includes("OPR")) {
+			browser = "Opera";
+		}
+
+		// OS detection
+		if (userAgent.includes("Windows")) {
+			os = "Windows";
+		} else if (userAgent.includes("Mac OS X") || userAgent.includes("macOS")) {
+			os = "macOS";
+		} else if (userAgent.includes("Linux")) {
+			os = "Linux";
+		} else if (userAgent.includes("Android")) {
+			os = "Android";
+		} else if (userAgent.includes("iPhone") || userAgent.includes("iPad")) {
+			os = userAgent.includes("iPhone") ? "iOS" : "iPadOS";
+		}
+
+		// Mobile detection
+		const isMobile =
+			userAgent.includes("Mobile") ||
+			userAgent.includes("Android") ||
+			userAgent.includes("iPhone");
+		const deviceType = isMobile ? "Mobile" : "Desktop";
+
+		return `${browser} on ${os} (${deviceType})`;
 	}
 
 	/**

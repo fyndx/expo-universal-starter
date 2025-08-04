@@ -46,6 +46,8 @@ export const UserDetailContainer = observer(() => {
 		updateStatus,
 		resendVerificationStatus,
 		resetPasswordStatus,
+		revokeSessionStatus,
+		revokeAllSessionsStatus,
 	} = userDetailModel$.obs.get();
 
 	// Get form data from formData$ observable
@@ -340,11 +342,19 @@ export const UserDetailContainer = observer(() => {
 							variant="destructive"
 							size="sm"
 							onPress={() =>
-								userDetailModel$.handleSessionRevoke({ userId: user.id })
+								userDetailModel$.handleAllSessionsRevoke({ userId: user.id })
 							}
-							disabled={sessionsStatus === "loading" || sessions.length === 0}
+							disabled={
+								sessionsStatus === "loading" ||
+								revokeAllSessionsStatus === "loading" ||
+								sessions.length === 0
+							}
 						>
-							<Text>Revoke All</Text>
+							<Text>
+								{revokeAllSessionsStatus === "loading"
+									? "Revoking..."
+									: "Revoke All"}
+							</Text>
 						</Button>
 					</CardHeader>
 					<CardContent>
@@ -365,6 +375,11 @@ export const UserDetailContainer = observer(() => {
 															Current
 														</Badge>
 													)}
+													{session.expired && (
+														<Badge variant="destructive" className="text-xs">
+															Expired
+														</Badge>
+													)}
 												</View>
 												<Text className="text-sm text-muted-foreground">
 													{session.location}
@@ -378,7 +393,7 @@ export const UserDetailContainer = observer(() => {
 													</Text>
 												)}
 											</View>
-											{!session.current && (
+											{!session.expired && !session.current && (
 												<Button
 													variant="ghost"
 													size="sm"
@@ -388,9 +403,13 @@ export const UserDetailContainer = observer(() => {
 															sessionId: session.id,
 														})
 													}
-													disabled={false}
+													disabled={revokeSessionStatus === "loading"}
 												>
-													<Text className="text-destructive">Revoke</Text>
+													<Text className="text-destructive">
+														{revokeSessionStatus === "loading"
+															? "Revoking..."
+															: "Revoke"}
+													</Text>
 												</Button>
 											)}
 										</View>
