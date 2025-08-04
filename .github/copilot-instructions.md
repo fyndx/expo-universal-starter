@@ -61,6 +61,7 @@ type ButtonProps = VariantProps<typeof buttonVariants> & PressableProps;
 ### State Management (Legend State)
 - **Observable State**: Use `@legendapp/state` for reactive state management across the app
 - **Model Pattern**: Create class-based models that mirror the Expo Router structure in `src/models/` with naming convention matching the route path (e.g., `admin/add-user.model.ts` for `admin/add-user` screen)
+- **Model Instance Naming**: Use `$` suffix for model instances used in components (e.g., `userModel$`, `addUserModel$`) to clearly indicate observable state
 - **API Integration**: Models handle API calls with observable state for loading, success, and error states. Methods should return `Promise<void>` and update observable status instead of returning boolean values
 - **Side Effects**: Models should handle all side effects including toast notifications, navigation, and form resets. Keep containers focused purely on UI interactions
 - **Performance**: Legend State provides fine-grained reactivity with minimal re-renders
@@ -143,16 +144,16 @@ Example container pattern:
 // src/containers/admin/add-user.container.tsx
 import { View } from "react-native";
 import { observer } from "@legendapp/state/react";
-import { addUserModel } from "~/models/admin/add-user.model";
+import { addUserModel$ } from "~/models/admin/add-user.model";
 import { UserForm } from "~/components/user-form";
 import { LoadingSpinner } from "~/components/ui/loading-spinner";
 
 export const AddUserContainer = observer(() => {
-  const { status, formData } = addUserModel.obs.get();
+  const { status, formData } = addUserModel$.obs.get();
 
   // Simple event handler - model handles all side effects
   const handleSubmit = async () => {
-    await addUserModel.createUser();
+    await addUserModel$.createUser();
   };
 
   if (status === "loading") {
