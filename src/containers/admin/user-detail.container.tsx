@@ -1,6 +1,6 @@
 import { observer } from "@legendapp/state/react";
 import { router, useLocalSearchParams } from "expo-router";
-import { ArrowLeft, Key, Mail, Trash2 } from "lucide-react-native";
+import { ArrowLeft, Key, Mail, Trash2, UserCheck } from "lucide-react-native";
 import { useEffect, useRef } from "react";
 import { ScrollView, View } from "react-native";
 import { Badge } from "~/components/ui/badge";
@@ -36,7 +36,8 @@ export const UserDetailContainer = observer(() => {
 	const userDetailModel$ = useRef(new UserDetailModel()).current;
 
 	// Get state from individual models directly
-	const { status, user, saveStatus } = userDetailModel$.userModel.obs.get();
+	const { status, user, saveStatus, impersonateStatus } =
+		userDetailModel$.userModel.obs.get();
 	const {
 		sessions,
 		sessionsStatus,
@@ -304,6 +305,22 @@ export const UserDetailContainer = observer(() => {
 										</Text>
 									</Button>
 								)}
+								<Button
+									variant="outline"
+									size="sm"
+									onPress={() => userDetailModel$.handleImpersonateUser()}
+									disabled={impersonateStatus === "loading"}
+									className="flex-row items-center"
+								>
+									<Text>
+										<UserCheck className="mr-2 h-4 w-4" />
+									</Text>
+									<Text>
+										{impersonateStatus === "loading"
+											? "Impersonating..."
+											: "Impersonate User"}
+									</Text>
+								</Button>
 								<Button
 									variant="outline"
 									size="sm"
