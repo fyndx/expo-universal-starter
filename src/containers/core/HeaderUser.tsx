@@ -1,6 +1,6 @@
 import { observer } from "@legendapp/state/react";
 import { type Href, useRouter } from "expo-router";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Pressable, View } from "react-native";
 import { ActivityIndicator } from "~/components/ui/activity-indicator";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -36,12 +36,14 @@ export const HeaderUser = observer(() => {
 	const { push } = useRouter();
 	const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-	// Sync impersonation state with session data
-	if (data) {
-		impersonationModel$.syncWithSession({ sessionData: data });
-	}
+	// Sync impersonation state with session data when it changes
+	useEffect(() => {
+		if (data) {
+			impersonationModel$.syncWithSession({ sessionData: data });
+		}
+	}, [data]);
 
-	const { isImpersonating, impersonatedUserName, stopImpersonationStatus } =
+	const { isImpersonating, stopImpersonationStatus } =
 		impersonationModel$.obs.get();
 
 	const handleStopImpersonating = async () => {
