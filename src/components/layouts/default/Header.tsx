@@ -1,7 +1,7 @@
-import { useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import * as React from "react";
-import { useEffect } from "react";
-import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import {
@@ -56,7 +56,13 @@ const components: { title: string; href: string; description: string }[] = [
 	},
 ];
 
-export function Header() {
+interface HeaderProps {
+	isScrolled?: boolean;
+}
+
+export function Header({ isScrolled }: HeaderProps) {
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
 	const insets = useSafeAreaInsets();
 	const contentInsets = {
 		top: insets.top,
@@ -81,20 +87,18 @@ export function Header() {
 	}, []);
 
 	return (
-		<>
-			{Platform.OS !== "web" && !!value && (
-				<Pressable
-					onPress={() => {
-						setValue("");
-					}}
-					style={StyleSheet.absoluteFill}
-				/>
-			)}
-			<View className="flex-row items-center justify-between px-4 py-0 border-b border-border bg-background relative z-50">
+		<View
+			className={`absolute top-0 left-0 right-0 z-50 transition-all duration-300 ${
+				isScrolled
+					? "bg-background/80 backdrop-blur-md border-b border-border/50"
+					: "bg-transparent"
+			}`}
+		>
+			<View className="flex-row items-center justify-between px-4 py-0 relative z-50">
 				{/* Logo Section */}
 				<Pressable
 					onPress={() => {
-						// TODO: Navigate to home
+						router.push("/");
 					}}
 					className="flex-row items-center gap-2"
 				>
@@ -112,7 +116,7 @@ export function Header() {
 				>
 					<NavigationMenuList>
 						<NavigationMenuItem value="getting-started">
-							<NavigationMenuTrigger>
+							<NavigationMenuTrigger className="bg-transparent">
 								<Text>Getting started</Text>
 							</NavigationMenuTrigger>
 							<NavigationMenuContent insets={contentInsets}>
@@ -155,7 +159,7 @@ export function Header() {
 							</NavigationMenuContent>
 						</NavigationMenuItem>
 						<NavigationMenuItem value="components">
-							<NavigationMenuTrigger>
+							<NavigationMenuTrigger className="bg-transparent">
 								<Text className="text-foreground">Components</Text>
 							</NavigationMenuTrigger>
 							<NavigationMenuContent insets={contentInsets}>
@@ -178,7 +182,7 @@ export function Header() {
 						<NavigationMenuItem value="documentation">
 							<NavigationMenuLink
 								onPress={closeAll}
-								className={navigationMenuTriggerStyle()}
+								className={`${navigationMenuTriggerStyle()} bg-transparent`}
 							>
 								<Text>Documentation</Text>
 							</NavigationMenuLink>
@@ -191,7 +195,7 @@ export function Header() {
 					<HeaderUser />
 				</View>
 			</View>
-		</>
+		</View>
 	);
 }
 

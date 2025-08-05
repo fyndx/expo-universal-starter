@@ -22,6 +22,7 @@
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
+    "@rn-primitives/accordion": "^1.2.0",
     "@rn-primitives/avatar": "^1.2.0",
     "@rn-primitives/dialog": "^1.2.0",
     "@rn-primitives/dropdown-menu": "^1.2.0",
