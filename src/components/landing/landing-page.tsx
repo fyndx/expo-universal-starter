@@ -104,7 +104,7 @@ function HeroSection() {
 			{floatingIcons.map(({ id, Icon, content, color, bg, style }) => (
 				<View
 					key={id}
-					className={`absolute ${style} w-12 h-12 rounded-xl items-center justify-center ${bg}`}
+					className={`absolute ${style} w-12 h-12 rounded-xl items-center justify-center ${bg} motion-safe:animate-bounce-slow`}
 				>
 					{Icon ? (
 						<Icon className={`w-6 h-6 ${color}`} />
