@@ -36,8 +36,7 @@ export class ImpersonationModel {
 			? sessionData?.user.name
 			: null;
 
-		this.obs.set({
-			...this.obs.peek(),
+		this.obs.assign({
 			isImpersonating,
 			impersonatedUserName,
 		});

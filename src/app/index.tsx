@@ -2,7 +2,7 @@ import { Redirect } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { Platform, Text, View } from "react-native";
-import { Header } from "~/components/layouts/default/Header";
+import { LandingPage } from "~/components/landing/landing-page";
 import { authClient } from "~/lib/auth-client";
 
 export default function LandingScreen() {
@@ -41,9 +41,5 @@ export default function LandingScreen() {
 
 	// For web, show the landing page
 	// For mobile, this will briefly show while we check auth and redirect
-	return (
-		<>
-			<Header />
-		</>
-	);
+	return <LandingPage />;
 }
