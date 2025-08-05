@@ -1,17 +1,17 @@
 import { Redirect } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
+import * as ExpoSplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { Platform, Text, View } from "react-native";
 import { LandingPage } from "~/components/landing/landing-page";
 import { authClient } from "~/lib/auth-client";
 
-export default function LandingScreen() {
+export default function SplashScreen() {
 	const session = authClient.useSession();
 
 	// Hide splash screen once session is loaded (not pending)
 	useEffect(() => {
 		if (session.data !== undefined) {
-			SplashScreen.hideAsync();
+			ExpoSplashScreen.hideAsync();
 		}
 	}, [session.data]);
 
