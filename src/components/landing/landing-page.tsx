@@ -2,8 +2,8 @@ import { Link } from "expo-router";
 import {
 	ChevronRight,
 	Code,
+	Layers,
 	Shield,
-	Smartphone,
 	Star,
 	Users,
 	Zap,
@@ -169,7 +169,7 @@ function FeaturesSection() {
 	const features = [
 		{
 			id: "cross-platform",
-			icon: Smartphone,
+			icon: Layers,
 			title: "Cross-Platform Ready",
 			description:
 				"One codebase that runs seamlessly on iOS, Android, and Web with platform-specific optimizations.",
@@ -408,11 +408,12 @@ function TestimonialsSection() {
 					horizontal
 					showsHorizontalScrollIndicator={false}
 					className="sm:grid sm:grid-cols-3 sm:gap-8"
+					contentContainerStyle={{ gap: 16 }}
 				>
 					{testimonials.map((testimonial) => (
 						<View
 							key={testimonial.id}
-							className="bg-background border border-border rounded-xl p-6 mr-4 sm:mr-0 w-80 sm:w-auto shadow-sm"
+							className="bg-background border border-border rounded-xl p-6 shadow-sm max-w-sm"
 						>
 							{/* Rating */}
 							<View className="flex-row mb-4">
