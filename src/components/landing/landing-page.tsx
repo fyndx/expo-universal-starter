@@ -48,48 +48,103 @@ export function LandingPage() {
 }
 
 function HeroSection() {
+	const floatingIcons = [
+		{
+			id: "code",
+			Icon: Code,
+			color: "text-gray-600",
+			bg: "bg-secondary/20",
+			style: "top-20 left-20",
+		},
+		{
+			id: "zap",
+			Icon: Zap,
+			color: "text-primary",
+			bg: "bg-primary/20",
+			style: "top-20 right-8",
+		},
+		{
+			id: "shield",
+			Icon: Shield,
+			color: "text-green-600",
+			bg: "bg-green-500/20",
+			style: "bottom-10 left-8",
+		},
+		{
+			id: "star",
+			Icon: Star,
+			color: "text-purple-600",
+			bg: "bg-purple-500/20",
+			style: "top-40 right-40",
+		},
+		{
+			id: "users",
+			Icon: Users,
+			color: "text-orange-600",
+			bg: "bg-orange-500/20",
+			style: "bottom-6 right-6",
+		},
+		{
+			id: "infinity",
+			content: "∞",
+			color: "text-blue-600",
+			bg: "bg-blue-500/20",
+			style: "bottom-36 left-36",
+		},
+	];
+
 	return (
-		<View className="min-h-screen relative px-4 py-16 sm:py-24 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
-			{/* Background Pattern */}
-			<View className="absolute inset-0 opacity-5">
-				<View className="w-full h-full bg-[radial-gradient(circle_at_50%_50%,theme(colors.primary)_1px,transparent_1px)] bg-[length:24px_24px]" />
+		<View className="min-h-screen relative px-6 py-20 sm:py-28 bg-gradient-to-br from-background via-secondary/20 to-primary/10">
+			{/* Background pattern */}
+			<View className="absolute inset-0 opacity-5 pointer-events-none">
+				<View className="w-full h-full bg-[radial-gradient(circle_at_center,theme(colors.primary)_1px,transparent_1px)] bg-[length:24px_24px]" />
 			</View>
 
-			<View className="relative max-w-4xl mx-auto text-center">
-				{/* Badge */}
-				<View className="inline-flex items-center bg-primary/10 border border-primary/20 rounded-full px-4 py-2 mb-6">
-					<Users className="w-4 h-4 text-primary mr-2" />
-					<Text className="text-sm font-medium text-primary">
-						1000+ Happy Developers
-					</Text>
+			{/* Floating Icons randomly scattered */}
+			{floatingIcons.map(({ id, Icon, content, color, bg, style }) => (
+				<View
+					key={id}
+					className={`absolute ${style} w-12 h-12 rounded-xl items-center justify-center ${bg}`}
+				>
+					{Icon ? (
+						<Icon className={`w-6 h-6 ${color}`} />
+					) : (
+						<Text className={`text-sm font-bold ${color}`}>{content}</Text>
+					)}
+				</View>
+			))}
+
+			<View className="relative max-w-4xl mx-auto items-center justify-center text-center">
+				{/* Hero Graphic (new position - top) */}
+				<View className="w-36 h-36 mx-auto rounded-3xl bg-background/80 border border-border shadow-2xl backdrop-blur-xl items-center justify-center mb-10 z-10">
+					<Zap className="w-12 h-12 text-primary" />
 				</View>
 
 				{/* Title */}
-				<Text className="text-4xl sm:text-6xl font-bold text-foreground mb-6 leading-tight">
-					Introducing{"\n"}
+				<Text className="text-[32px] sm:text-[48px] font-extrabold text-foreground tracking-tight mb-4 leading-tight text-center">
+					Introducing {"\n"}
 					<Text className="text-primary">Universal Starter</Text>
 				</Text>
 
 				{/* Subtitle */}
-				<Text className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-					Boost your productivity with the ultimate React Native + Web starter
-					kit. Build once, deploy everywhere with modern tooling and best
-					practices.
+				<Text className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-xl mx-auto leading-relaxed">
+					The ultimate React Native + Web starter kit to launch your product
+					faster — powered by Expo, Tailwind, and Legend State.
 				</Text>
 
 				{/* CTA Buttons */}
-				<View className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+				<View className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
 					<Link href="/(public)/auth/sign-up" asChild>
-						<Pressable className="bg-primary hover:bg-primary/90 active:bg-primary/80 px-8 py-4 rounded-lg flex-row items-center">
-							<Text className="text-primary-foreground font-semibold text-lg mr-2">
+						<Pressable className="px-8 py-4 rounded-full bg-primary hover:bg-primary/90 active:bg-primary/80  shadow-lg flex-row items-center active:scale-[.98]">
+							<Text className="text-primary-foreground font-bold text-base mr-2">
 								Get Started Free
 							</Text>
 							<ChevronRight className="w-5 h-5 text-primary-foreground" />
 						</Pressable>
 					</Link>
 
-					<Pressable className="border border-border bg-background hover:bg-muted active:bg-muted/80 px-8 py-4 rounded-lg flex-row items-center">
-						<Text className="text-foreground font-semibold text-lg mr-2">
+					<Pressable className="border border-border bg-background hover:bg-muted active:bg-muted/70 px-8 py-4 rounded-full flex-row items-center">
+						<Text className="text-foreground font-semibold text-base mr-2">
 							Watch Demo
 						</Text>
 						<View className="w-5 h-5 bg-primary rounded-full items-center justify-center">
@@ -98,19 +153,12 @@ function HeroSection() {
 					</Pressable>
 				</View>
 
-				{/* Hero Image/Icon */}
-				<View className="relative">
-					<View className="w-32 h-32 mx-auto bg-gradient-to-br from-primary to-secondary rounded-3xl items-center justify-center shadow-2xl">
-						<Smartphone className="w-16 h-16 text-primary-foreground" />
-					</View>
-
-					{/* Floating Elements */}
-					<View className="absolute -top-4 -left-8 w-16 h-16 bg-secondary/20 rounded-2xl items-center justify-center">
-						<Code className="w-8 h-8 text-secondary" />
-					</View>
-					<View className="absolute -bottom-4 -right-8 w-16 h-16 bg-primary/20 rounded-2xl items-center justify-center">
-						<Zap className="w-8 h-8 text-primary" />
-					</View>
+				{/* Badge */}
+				<View className="flex-row inline-flex items-center bg-primary/10 border border-primary/20 rounded-full px-4 py-2 mt-4">
+					<Users className="w-4 h-4 text-primary mr-2" />
+					<Text className="text-sm font-medium text-primary">
+						1000+ Happy Developers
+					</Text>
 				</View>
 			</View>
 		</View>
