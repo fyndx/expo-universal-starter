@@ -7,6 +7,8 @@ import { signUpModel$ } from "~/models/auth/sign-up.model";
 
 export const SignUpContainer = observer(() => {
 	const { status, formData } = signUpModel$.obs.get();
+	const resendVerificationStatus =
+		signUpModel$.emailModel.obs.resendVerificationStatus.get();
 
 	const handleFormDataChange = ({
 		field,
@@ -44,6 +46,7 @@ export const SignUpContainer = observer(() => {
 							userEmail={formData.email}
 							onContinue={handleContinue}
 							onResendVerification={handleResendVerification}
+							resendVerificationStatus={resendVerificationStatus}
 						/>
 					) : (
 						<SignUpForm

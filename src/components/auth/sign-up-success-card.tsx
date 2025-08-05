@@ -10,12 +10,14 @@ import {
 } from "~/components/ui/card";
 import { Confetti } from "~/components/ui/confetti";
 import { Text } from "~/components/ui/text";
+import type { ApiStatus } from "~/utils/api";
 
 interface SignUpSuccessCardProps {
 	userName: string;
 	userEmail: string;
 	onContinue: () => void;
 	onResendVerification: () => void;
+	resendVerificationStatus: ApiStatus;
 }
 
 export function SignUpSuccessCard({
@@ -23,7 +25,12 @@ export function SignUpSuccessCard({
 	userEmail,
 	onContinue,
 	onResendVerification,
+	resendVerificationStatus,
 }: SignUpSuccessCardProps) {
+	const isResending = resendVerificationStatus === "loading";
+	const hasResendError = resendVerificationStatus === "error";
+	const hasResendSuccess = resendVerificationStatus === "success";
+
 	return (
 		<>
 			<Confetti />
@@ -54,10 +61,23 @@ export function SignUpSuccessCard({
 					<Button
 						variant="outline"
 						onPress={onResendVerification}
+						disabled={isResending}
 						className="w-full"
 					>
-						<Text>Resend verification email</Text>
+						<Text>
+							{isResending ? "Sending..." : "Resend verification email"}
+						</Text>
 					</Button>
+					{hasResendSuccess && (
+						<Text className="text-center text-sm text-green-600 dark:text-green-400">
+							Verification email sent successfully!
+						</Text>
+					)}
+					{hasResendError && (
+						<Text className="text-center text-sm text-red-600 dark:text-red-400">
+							Failed to send verification email. Please try again.
+						</Text>
+					)}
 				</CardFooter>
 			</Card>
 		</>

@@ -1,7 +1,8 @@
+import { authClient } from "@/src/lib/auth-client";
 import { type Observable, observable } from "@legendapp/state";
 import { router } from "expo-router";
-import { authClient } from "@/src/lib/auth-client";
 import { toast } from "~/lib/sonner/sonner";
+import { EmailModel } from "~/models/admin/user-detail/email.model";
 
 type SignUpStatus = "idle" | "loading" | "success" | "error";
 
@@ -19,6 +20,7 @@ interface SignUpState {
 
 export class SignUpModel {
 	obs: Observable<SignUpState>;
+	emailModel: EmailModel;
 
 	constructor() {
 		this.obs = observable({
@@ -28,7 +30,9 @@ export class SignUpModel {
 				email: "",
 				password: "",
 			},
+			error: null,
 		});
+		this.emailModel = new EmailModel();
 	}
 
 	updateFormData({ field, value }: { field: string; value: string }): void {
@@ -37,7 +41,7 @@ export class SignUpModel {
 
 	async signUp(): Promise<void> {
 		const { name, email, password } = this.obs.formData.peek();
-		
+
 		this.obs.status.set("loading");
 
 		try {
@@ -64,7 +68,8 @@ export class SignUpModel {
 				position: "bottom-center",
 			});
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : "Failed to create account";
+			const errorMessage =
+				error instanceof Error ? error.message : "Failed to create account";
 			this.obs.set({
 				...this.obs.peek(),
 				status: "error",
@@ -78,18 +83,7 @@ export class SignUpModel {
 
 	async resendVerification(): Promise<void> {
 		const { email } = this.obs.formData.peek();
-		
-		try {
-			// Note: Better Auth might not have a direct resend method
-			// This is a placeholder - adjust based on your auth provider's API
-			toast.success("Verification email sent!", {
-				position: "bottom-center",
-			});
-		} catch (error) {
-			toast.error("Failed to resend verification email", {
-				position: "bottom-center",
-			});
-		}
+		await this.emailModel.resendVerificationEmail({ email });
 	}
 
 	continueToApp(): void {
