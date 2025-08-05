@@ -1,3 +1,4 @@
+import { observer } from "@legendapp/state/react";
 import { type Href, useRouter } from "expo-router";
 import { useRef } from "react";
 import { Pressable, View } from "react-native";
@@ -20,6 +21,7 @@ import { Text } from "~/components/ui/text";
 import { authClient } from "~/lib/auth-client";
 import { Menu } from "~/lib/icons/Menu";
 import { Shield } from "~/lib/icons/Shield";
+import { impersonationModel$ } from "~/models/core/impersonation.model";
 
 const Options = [
 	{
@@ -29,10 +31,22 @@ const Options = [
 	},
 ];
 
-export const HeaderUser = () => {
-	const { isPending, data, error } = authClient.useSession();
+export const HeaderUser = observer(() => {
+	const { isPending, data } = authClient.useSession();
 	const { push } = useRouter();
 	const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+	// Sync impersonation state with session data
+	if (data) {
+		impersonationModel$.syncWithSession({ sessionData: data });
+	}
+
+	const { isImpersonating, impersonatedUserName, stopImpersonationStatus } =
+		impersonationModel$.obs.get();
+
+	const handleStopImpersonating = async () => {
+		await impersonationModel$.stopImpersonating();
+	};
 
 	return (
 		<>
@@ -57,14 +71,36 @@ export const HeaderUser = () => {
 								className="w-64 native:w-72 mt-1 gap-2"
 							>
 								<DropdownMenuLabel className="flex flex-col items-start">
-									<Text className="text-lg font-semibold">
-										{data?.user.name}
-									</Text>
+									<View className="flex-row items-center gap-2">
+										<Text className="text-lg font-semibold">
+											{data?.user.name}
+										</Text>
+										{isImpersonating && (
+											<View className="w-2 h-2 rounded-full bg-yellow-500" />
+										)}
+									</View>
 									<Text className="text-sm text-muted-foreground">
 										{data?.user.email}
 									</Text>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
+								{isImpersonating && (
+									<>
+										<Button
+											variant="outline"
+											size="sm"
+											onPress={handleStopImpersonating}
+											disabled={stopImpersonationStatus === "loading"}
+											className="flex-row items-center gap-2"
+										>
+											{stopImpersonationStatus === "loading" && (
+												<ActivityIndicator size="small" />
+											)}
+											<Text>Stop Impersonating</Text>
+										</Button>
+										<DropdownMenuSeparator />
+									</>
+								)}
 								{Options.map((option) => (
 									<DropdownMenuItem
 										key={option.label}
@@ -127,10 +163,29 @@ export const HeaderUser = () => {
 				<BottomSheetView className="bg-background p-4">
 					{data ? (
 						<View className="bg-background p-4 gap-2">
-							<Text className="text-lg font-semibold">{data?.user.name}</Text>
+							<View className="flex-row items-center gap-2">
+								<Text className="text-lg font-semibold">{data?.user.name}</Text>
+								{isImpersonating && (
+									<View className="w-2 h-2 rounded-full bg-yellow-500" />
+								)}
+							</View>
 							<Text className="text-sm text-muted-foreground">
 								{data?.user.email}
 							</Text>
+							{isImpersonating && (
+								<Button
+									variant="outline"
+									size="sm"
+									onPress={handleStopImpersonating}
+									disabled={stopImpersonationStatus === "loading"}
+									className="flex-row items-center gap-2"
+								>
+									{stopImpersonationStatus === "loading" && (
+										<ActivityIndicator size="small" />
+									)}
+									<Text>Stop Impersonating</Text>
+								</Button>
+							)}
 							{Options.map((option) => (
 								<Button
 									key={option.label}
@@ -169,4 +224,4 @@ export const HeaderUser = () => {
 			</BottomSheetModal>
 		</>
 	);
-};
+});

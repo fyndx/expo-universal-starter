@@ -1,3 +1,4 @@
+import { authClient } from "~/lib/auth-client";
 import { toast } from "~/lib/sonner/sonner";
 import { EmailModel } from "./user-detail/email.model";
 import { FormModel } from "./user-detail/form.model";
@@ -152,6 +153,31 @@ export class UserDetailModel {
 		const user = this.userModel.obs.user.peek();
 		if (user?.email) {
 			await this.emailModel.resendVerificationEmail({ email: user.email });
+		}
+	}
+
+	async handleImpersonateUser(): Promise<void> {
+		const user = this.userModel.obs.user.peek();
+		if (!user?.id) return;
+
+		this.userModel.obs.impersonateStatus.set("loading");
+		try {
+			const { error } = await authClient.admin.impersonateUser({
+				userId: user.id,
+			});
+
+			if (error) {
+				throw new Error(error.message || "Failed to impersonate user");
+			}
+
+			this.userModel.obs.impersonateStatus.set("success");
+			toast.success(`Successfully impersonating ${user.name || user.email}`);
+			window.location.reload(); // Reload to apply impersonation changes
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : "Failed to impersonate user";
+			this.userModel.obs.impersonateStatus.set("error");
+			toast.error(errorMessage);
 		}
 	}
 

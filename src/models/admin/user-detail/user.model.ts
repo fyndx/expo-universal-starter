@@ -34,6 +34,7 @@ export class UserModel {
 		user?: User | null;
 		error?: string | null;
 		saveStatus: ApiStatus;
+		impersonateStatus: ApiStatus;
 	}>;
 
 	constructor() {
@@ -42,6 +43,7 @@ export class UserModel {
 			user: null as User | null,
 			error: null as string | null,
 			saveStatus: "idle" as ApiStatus,
+			impersonateStatus: "idle" as ApiStatus,
 		});
 	}
 
@@ -138,10 +140,7 @@ export class UserModel {
 			await this.fetchUserById({ id: userId });
 			toast.success("User role updated successfully");
 		} catch (error) {
-			const errorMessage = getErrorMessage(
-				error,
-				"Failed to update user role",
-			);
+			const errorMessage = getErrorMessage(error, "Failed to update user role");
 			toast.error(errorMessage);
 			throw error;
 		}
