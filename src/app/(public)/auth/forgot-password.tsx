@@ -1,7 +1,8 @@
+import * as Linking from "expo-linking";
 import { Link } from "expo-router";
 import { MotiView } from "moti";
 import { useState } from "react";
-import { View } from "react-native";
+import { Platform, View } from "react-native";
 import { ActivityIndicator } from "~/components/ui/activity-indicator";
 import { Button } from "~/components/ui/button";
 import {
@@ -32,9 +33,14 @@ export default function ForgotPassword() {
 		try {
 			setIsLoading(true);
 
+			const redirectTo =
+				Platform.OS === "web"
+					? `${window.location.origin}/auth/reset-password`
+					: Linking.createURL("/auth/reset-password");
+
 			const { error } = await authClient.requestPasswordReset({
 				email,
-				redirectTo: `${window?.location?.origin}/auth/reset-password`,
+				redirectTo,
 			});
 
 			if (error) {
