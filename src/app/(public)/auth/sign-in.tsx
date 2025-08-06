@@ -14,6 +14,7 @@ import {
 	CardTitle,
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
+import { PasswordInput } from "~/components/ui/password";
 import { Text } from "~/components/ui/text";
 import { toast } from "~/lib/sonner/sonner";
 
@@ -69,12 +70,11 @@ export default function SignIn() {
 								value={email}
 								onChangeText={setEmail}
 							/>
-							<Input
+							<PasswordInput
 								id={"password"}
 								placeholder="Password"
 								value={password}
 								onChangeText={setPassword}
-								secureTextEntry={true}
 							/>
 							{/* Forgot Password */}
 							<Link href="/(public)/auth/forgot-password">
