@@ -22,29 +22,75 @@ export default function SignIn() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [isResendingVerification, setIsResendingVerification] = useState(false);
+	const [showVerificationPrompt, setShowVerificationPrompt] = useState(false);
 
 	const router = useRouter();
 
 	const handleLogin = async () => {
 		try {
 			setIsLoading(true);
-			const { data, error } = await authClient.signIn.email({
-				email,
-				password,
-			});
+			setShowVerificationPrompt(false);
 
-			if (error) {
-				toast.error(`Login failed: ${error.message}`, {
-					position: "bottom-center",
-				});
-				return;
+			const { data, error } = await authClient.signIn.email(
+				{
+					email,
+					password,
+				},
+				{
+					onError: (ctx) => {
+						if (ctx.error.status === 403) {
+							setShowVerificationPrompt(true);
+							toast.error("Please verify your email address", {
+								position: "bottom-center",
+							});
+						} else {
+							toast.error(`Login failed: ${ctx.error.message}`, {
+								position: "bottom-center",
+							});
+						}
+					},
+				},
+			);
+
+			if (data && !error) {
+				router.replace("/home");
 			}
-			router.replace("/home");
 		} catch (error) {
-			// TODO: Handle unexpected errors
 			console.error("Login error:", error);
+			toast.error("An unexpected error occurred", {
+				position: "bottom-center",
+			});
 		} finally {
 			setIsLoading(false);
+		}
+	};
+
+	const handleResendVerification = async () => {
+		if (!email) {
+			toast.error("Please enter your email address", {
+				position: "bottom-center",
+			});
+			return;
+		}
+
+		try {
+			setIsResendingVerification(true);
+			await authClient.sendVerificationEmail({
+				email,
+				callbackURL: "/",
+			});
+
+			toast.success("Verification email sent! Please check your inbox.", {
+				position: "bottom-center",
+			});
+		} catch (error) {
+			console.error("Verification email error:", error);
+			toast.error("Failed to send verification email", {
+				position: "bottom-center",
+			});
+		} finally {
+			setIsResendingVerification(false);
 		}
 	};
 
@@ -83,7 +129,7 @@ export default function SignIn() {
 								</Text>
 							</Link>
 						</CardContent>
-						<CardFooter>
+						<CardFooter className="flex-col gap-3">
 							<Button
 								onPress={handleLogin}
 								className="flex-1 flex-row items-center gap-4"
@@ -91,6 +137,27 @@ export default function SignIn() {
 								{isLoading && <ActivityIndicator />}
 								<Text>{isLoading ? "Signing In..." : "Sign In"}</Text>
 							</Button>
+
+							{showVerificationPrompt && (
+								<View className="w-full">
+									<Text className="text-sm text-muted-foreground text-center mb-2">
+										Email not verified? Check your inbox or resend verification.
+									</Text>
+									<Button
+										variant="outline"
+										onPress={handleResendVerification}
+										disabled={isResendingVerification}
+										className="flex-row items-center gap-2"
+									>
+										{isResendingVerification && <ActivityIndicator />}
+										<Text>
+											{isResendingVerification
+												? "Sending..."
+												: "Resend Verification Email"}
+										</Text>
+									</Button>
+								</View>
+							)}
 						</CardFooter>
 						{/* Sign Up Option */}
 						<View className="p-6 pt-0">
