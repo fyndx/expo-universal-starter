@@ -6,12 +6,10 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun run --parallel dev:frontend dev:server",
-    "dev:frontend": "bun --cwd apps/frontend run dev",
-    "dev:server": "bun --cwd apps/server run dev",
-    "build": "bun run build:frontend && bun run build:server",
-    "build:frontend": "bun --cwd apps/frontend run build",
-    "build:server": "bun --cwd apps/server run build"
+    "dev": "bun run --filter './apps/*' dev",
+    "android": "bun run --filter './apps/frontend' android",
+    "ios": "bun run --filter './apps/frontend' ios",
+    "web": "bun run --filter './apps/frontend' web"
   },
   "devDependencies": {
     "@types/bun": "latest"
