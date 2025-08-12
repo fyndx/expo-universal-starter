@@ -7,16 +7,17 @@ WORKDIR /app
 COPY package.json bun.lock ./
 COPY packages/ ./packages/
 
-# Copy server app files
-COPY apps/server/package.json ./apps/server/
-COPY apps/server/src ./apps/server/src
-COPY apps/server/prisma ./apps/server/prisma
-COPY apps/server/tsconfig.json ./apps/server/
+# Copy backend app files
+COPY apps/backend/package.json ./apps/backend/
+COPY apps/backend/src ./apps/backend/src
+COPY apps/backend/prisma ./apps/backend/prisma
+COPY apps/backend/tsconfig.json ./apps/backend/
+COPY apps/backend/.env ./apps/backend/
 
 RUN bun install
 
-# Change to server directory for build
-WORKDIR /app/apps/server
+# Change to backend directory for build
+WORKDIR /app/apps/backend
 
 ENV NODE_ENV=production
 
@@ -35,7 +36,7 @@ FROM gcr.io/distroless/base
 
 WORKDIR /app
 
-COPY --from=build /app/apps/server server
+COPY --from=build /app/apps/backend/server server
 
 ENV NODE_ENV=production
 
