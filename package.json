@@ -1,0 +1,22 @@
+{
+  "name": "universal-starter",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --parallel dev:frontend dev:server",
+    "dev:frontend": "bun --cwd apps/frontend run dev",
+    "dev:server": "bun --cwd apps/server run dev",
+    "build": "bun run build:frontend && bun run build:server",
+    "build:frontend": "bun --cwd apps/frontend run build",
+    "build:server": "bun --cwd apps/server run build"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}
