@@ -1,56 +1,79 @@
-# Welcome to your Expo app 👋
+# Universal Starter (Expo + Elysia)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A full-stack universal starter template with Bun workspaces featuring:
+- **Frontend**: Universal Expo app (iOS, Android, Web)
+- **Backend**: Elysia server with Bun runtime
 
-## Get started
+## Stack
 
-1. Install dependencies
+### Frontend
+- [Expo Router](https://docs.expo.dev/routing/introduction/) - File-based routing
+- [NativeWind](https://www.nativewind.dev/) - Tailwind CSS for React Native
+- [Better Auth](https://github.com/Better-Auth) - Authentication
+- [Legend State](https://legendapp.com/open-source/state/) - State management
+- [react-native-reusables](https://github.com/reusables) - Accessible UI components
 
-   ```bash
-   npm install
-   ```
+### Backend
+- [Elysia](https://elysiajs.com/) - TypeScript HTTP framework
+- [Bun](https://bun.sh/) - JavaScript runtime & toolchain
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-## PreBuild
+## Project Structure
 
 ```
-npx expo prebuild --clean
+.
+├── apps/
+│   ├── expo/           # Universal Expo app
+│   └── server/         # Elysia backend
+├── packages/           # Shared packages
+└── package.json        # Workspace root
 ```
 
-In the output, you'll find options to open the app in a
+## Getting Started
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Prerequisites
+- [Bun](https://bun.sh/) >= 1.0.0
+- [Node.js](https://nodejs.org/) >= 18
+- [Expo CLI](https://docs.expo.dev/get-started/installation/)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Installation
 
 ```bash
-npm run reset-project
+# Clone the repo
+git clone https://github.com/fyndx/universal-starter.git
+
+# Install dependencies
+bun install
+
+# Start development
+bun dev
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Development Commands
 
-## Learn more
+```bash
+# Start both frontend and backend
+bun dev
 
-To learn more about developing your project with Expo, look at the following resources:
+# Start frontend only
+bun workspace expo dev
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# Start backend only
+bun workspace server dev
 
-## Join the community
+# Build for production
+bun build
+```
 
-Join our community of developers creating universal apps.
+### Mobile Development
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+# iOS
+bun workspace expo ios
+
+# Android
+bun workspace expo android
+```
+
+## License
+
+MIT
