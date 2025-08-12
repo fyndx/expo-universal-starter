@@ -3,7 +3,7 @@ import { adminClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import * as SecureStore from "expo-secure-store";
 
-const plugins = [adminClient()];
+const plugins = [];
 
 if (process.env.EXPO_OS !== "web") {
 	plugins.push(
@@ -14,6 +14,8 @@ if (process.env.EXPO_OS !== "web") {
 		}),
 	);
 }
+
+plugins.push(adminClient());
 
 export const authClient = createAuthClient({
 	baseURL: "https://ship-server.onrender.com/api/auth", // Base URL of your Better Auth backend.

@@ -8,7 +8,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/components/ui/card";
-import { Confetti } from "~/components/ui/confetti";
+import { SkiaLoader } from "~/components/ui/skia-loader";
 import { Text } from "~/components/ui/text";
 import type { ApiStatus } from "~/utils/api";
 
@@ -33,7 +33,7 @@ export function SignUpSuccessCard({
 
 	return (
 		<>
-			<Confetti />
+			<SkiaLoader component={() => import("~/components/ui/confetti")} />
 			<Card>
 				<CardHeader>
 					<CardTitle className="text-center">Check your email! 📧</CardTitle>
