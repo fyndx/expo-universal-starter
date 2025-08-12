@@ -25,7 +25,6 @@ RUN bun prisma generate --no-engine
 
 RUN bun build \
 	--compile \
-	--bytecode \
 	--minify-whitespace \
 	--minify-syntax \
 	--target bun \
