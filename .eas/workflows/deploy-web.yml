@@ -2,7 +2,7 @@ name: Deploy web
 
 on:
   push:
-    branches: ['main', 'feat/migrate-to-monorepo']
+    branches: ['main']
 
 jobs:
   deploy_web:

@@ -14,3 +14,7 @@ yarn-error.*
 dist/
 web-build/
 expo-env.d.ts
+
+# macOS
+.DS_Store
+*.pem
