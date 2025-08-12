@@ -1,12 +1,17 @@
-import { WithSkiaWeb } from "@shopify/react-native-skia/lib/module/web";
+import { Confetti } from "react-native-fast-confetti";
 
-export function Confetti() {
+export default function ConfettiBase() {
 	return (
-		<WithSkiaWeb
-			opts={{
-				locateFile: (file) => `/canvaskit.wasm`,
-			}}
-			getComponent={async () => require("./confetti-base")}
+		<Confetti
+			colors={[
+				"#FF6B6B",
+				"#4ECDC4",
+				"#45B7D1",
+				"#96CEB4",
+				"#FFEAA7",
+				"#DDA0DD",
+			]}
+			isInfinite={false}
 		/>
 	);
 }
