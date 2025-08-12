@@ -2,19 +2,29 @@ FROM oven/bun AS build
 
 WORKDIR /app
 
+# Pass environment as build arg (default: production)
+# available environments: production, development, staging
+ARG ENVIRONMENT=production
+ENV ENVIRONMENT=${ENVIRONMENT}
+
 # Cache packages installation
 # Copy workspace root files first
 COPY package.json bun.lock ./
 COPY packages/ ./packages/
 
-# Copy backend app files
+# Copy app package.json files
 COPY apps/backend/package.json ./apps/backend/
+COPY apps/frontend/package.json ./apps/frontend/
+COPY packages/orpc-client/package.json ./packages/orpc-client/
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
+
+# Copy backend app files
 COPY apps/backend/src ./apps/backend/src
 COPY apps/backend/prisma ./apps/backend/prisma
 COPY apps/backend/tsconfig.json ./apps/backend/
-COPY apps/backend/.env ./apps/backend/
-
-RUN bun install
+# UNCOMMENT BELOW LINE WHEN .env.${ENVIRONMENT} FILE IS PRESENT
+# COPY apps/backend/.env.${ENVIRONMENT} ./apps/backend/
 
 # Change to backend directory for build
 WORKDIR /app/apps/backend
@@ -37,6 +47,8 @@ FROM gcr.io/distroless/base
 WORKDIR /app
 
 COPY --from=build /app/apps/backend/server server
+# Copy .env file to runtime image for Prisma
+COPY --from=build /app/apps/backend/.env* ./
 
 ENV NODE_ENV=production
 
