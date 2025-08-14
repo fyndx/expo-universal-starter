@@ -39,7 +39,6 @@ export type AuthCtx = InputCtx & {
 export const requireAuth = os
 	.$context<AuthCtx>()
 	.middleware(async ({ context, next }) => {
-		console.log("requireAuth middleware", context);
 		if (!context.session || !context.user) {
 			throw new ORPCError("UNAUTHORIZED", { message: "Unauthenticated" });
 		}
