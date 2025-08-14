@@ -4,4 +4,7 @@ export const appRouter = {
 	user: {
 		me: meProcedure,
 	},
+	public: {},
 };
+
+export type AppRouter = typeof appRouter;
