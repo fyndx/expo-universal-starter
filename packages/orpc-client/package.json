@@ -6,5 +6,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@orpc/client": "^1.8.1",
+    "@orpc/server": "^1.8.1",
+    "@universal/backend": "workspace:*"
+  }
 }

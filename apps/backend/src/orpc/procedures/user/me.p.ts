@@ -1,10 +1,8 @@
 import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { baseMiddleware } from "../../middleware";
-import { requireAuth } from "../../middleware/auth.middleware";
+import { protectedMiddleware } from "../../middleware";
 
-export const meProcedure = baseMiddleware
-	.use(requireAuth)
+export const meProcedure = protectedMiddleware
 	.route({ method: "GET", path: "/user/me" })
 	.output(
 		z.object({
