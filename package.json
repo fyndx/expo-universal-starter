@@ -1,10 +1,17 @@
 {
   "name": "universal-starter",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "catalogs": {
+      "validation": {
+        "zod": "^4.0.17"
+      }
+    }
+  },
   "scripts": {
     "dev": "bun run --filter './apps/*' dev",
     "android": "bun run --filter './apps/frontend' android",

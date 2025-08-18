@@ -27,7 +27,7 @@
     "elysia-rate-limit": "^4.4.0",
     "nodemailer": "^7.0.5",
     "resend": "^4.8.0",
-    "zod": "^4.0.17"
+    "zod": "catalog:validation"
   },
   "devDependencies": {
     "@biomejs/biome": "2.0.6",
