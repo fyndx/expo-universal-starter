@@ -54,7 +54,7 @@ Pushes schema changes directly to the database without creating migration files.
 - **Note:** Use with caution in production as it doesn't create migration history
 
 ### `bun run db:seed`
-**Command:** `bun prisma/seeds/index.ts`
+**Command:** `bun run prisma/seeds/index.ts`
 
 Runs the database seeding script to populate your database with initial or test data. This typically:
 - Creates default users, roles, or configuration data

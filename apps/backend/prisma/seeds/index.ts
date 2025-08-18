@@ -1,7 +1,5 @@
 import { auth } from "@/src/lib/auth";
-import { PrismaClient } from "../generated/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/src/lib/db";
 
 async function main() {
 	console.log("Starting database seed...");

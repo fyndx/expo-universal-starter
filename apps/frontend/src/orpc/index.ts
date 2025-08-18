@@ -5,7 +5,7 @@ import type { AppRouter } from "@universal/orpc-client";
 import { env } from "~/config/env";
 
 const link = new RPCLink({
-	url: env.EXPO_PUBLIC_API_URL,
+	url: `${env.EXPO_PUBLIC_API_URL}/orpc`,
 });
 
 export const orpc: RouterClient<AppRouter> = createORPCClient(link);
