@@ -1,15 +1,22 @@
 {
-  "name": "@universal/server",
+  "name": "@universal/backend",
   "version": "1.0.50",
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "build": "bun build --compile --minify-whitespace --minify-syntax --target bun --outfile server ./src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "bun prisma/seeds/index.ts",
+    "db:reset": "prisma migrate reset"
   },
   "dependencies": {
     "@better-auth/expo": "^1.3.4",
     "@elysiajs/cors": "^1.3.3",
     "@elysiajs/swagger": "^1.3.1",
+    "@orpc/json-schema": "^1.8.1",
     "@orpc/openapi": "^1.7.10",
     "@orpc/server": "^1.7.10",
     "@orpc/zod": "^1.7.10",
@@ -21,13 +28,16 @@
     "elysia-rate-limit": "^4.4.0",
     "nodemailer": "^7.0.5",
     "resend": "^4.8.0",
-    "zod": "^4.0.17"
+    "zod": "catalog:validation"
   },
   "devDependencies": {
     "@biomejs/biome": "2.0.6",
     "bun-types": "latest",
     "prisma": "^6.11.1",
     "typescript": "^5.8.3"
+  },
+  "exports": {
+    "./types": "./src/types/index.ts"
   },
   "module": "src/index.js"
 }

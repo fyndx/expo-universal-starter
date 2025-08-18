@@ -3,11 +3,11 @@ const { getDefaultConfig } = require("expo/metro-config");
 const { withNativeWind } = require("nativewind/metro");
 const path = require("path");
 
-const monorepoRoot = path.resolve(__dirname, "../..");
 const projectRoot = __dirname;
+const monorepoRoot = path.resolve(projectRoot, "../..");
 
 /** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(__dirname, {
+const config = getDefaultConfig(projectRoot, {
   // [Web-only]: Enables CSS support in Metro.
   isCSSEnabled: true,
 });
@@ -42,5 +42,9 @@ config.resolver.unstable_enablePackageExports = true;
 config.resolver.sourceExts.push(
   "mjs" // Add support for .mjs files
 );
+
+// Disable hierarchical lookup to avoid issues with monorepo setups
+// Force metro to resolve (sub)dependencies only from the `nodeModulesPaths`
+config.resolver.disableHierarchicalLookup = true;
 
 module.exports = withNativeWind(config, { input: "./global.css" });

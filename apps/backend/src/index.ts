@@ -1,10 +1,10 @@
+import { auth } from "@/src/lib/auth";
 import cors from "@elysiajs/cors";
 import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
-import { auth } from "@/src/lib/auth";
 import { isOriginAllowed } from "./cors";
 import { OpenAPI } from "./lib/open-api";
-import { orpcHandler } from "./orpc";
+import { openAPIHandler, rpcHandler } from "./orpc";
 
 const app = new Elysia()
 	.use(
@@ -57,11 +57,22 @@ const app = new Elysia()
 		},
 	)
 	// Orpc
+	.all("/orpc/*", async ({ request }: { request: Request }) => {
+		const { response } = await openAPIHandler.handle(request, {
+			prefix: "/orpc",
+			context: {
+				headers: request.headers,
+			},
+		});
+
+		return response ?? new Response("Not Found", { status: 404 });
+	})
+	// RPC
 	.all(
-		"/orpc/*",
+		"/rpc/*",
 		async ({ request }: { request: Request }) => {
-			const { response } = await orpcHandler.handle(request, {
-				prefix: "/orpc",
+			const { response } = await rpcHandler.handle(request, {
+				prefix: "/rpc",
 				context: {
 					headers: request.headers,
 				},

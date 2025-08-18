@@ -1,15 +1,23 @@
+import { experimental_SmartCoercionPlugin as SmartCoercionPlugin } from "@orpc/json-schema";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
-// import { CORSPlugin } from "@orpc/server/plugins";
-import { ZodToJsonSchemaConverter } from "@orpc/zod";
+import { RPCHandler } from "@orpc/server/fetch";
+import { CORSPlugin } from "@orpc/server/plugins";
+import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { appRouter } from "./routers";
 
-export const orpcHandler = new OpenAPIHandler(appRouter, {
+export const openAPIHandler = new OpenAPIHandler(appRouter, {
+	interceptors: [],
 	plugins: [
-		// new CORSPlugin({
-		// 	origin: (origin, options) => origin,
-		// 	allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH"],
-		// }),
+		new CORSPlugin({
+			origin: (origin, options) => origin ?? "*",
+			allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH"],
+			allowHeaders: ["Content-Type", "Authorization"],
+			credentials: true,
+		}),
+		new SmartCoercionPlugin({
+			schemaConverters: [new ZodToJsonSchemaConverter()],
+		}),
 		new OpenAPIReferencePlugin({
 			schemaConverters: [new ZodToJsonSchemaConverter()],
 			specGenerateOptions: {
@@ -28,4 +36,8 @@ export const orpcHandler = new OpenAPIHandler(appRouter, {
 			},
 		}),
 	],
+});
+
+export const rpcHandler = new RPCHandler(appRouter, {
+	interceptors: [],
 });

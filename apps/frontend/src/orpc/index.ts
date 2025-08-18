@@ -1,18 +1,11 @@
 import { createORPCClient } from "@orpc/client";
-import { OpenAPILink } from "@orpc/openapi-client/fetch";
+import { RPCLink } from "@orpc/client/fetch";
+import type { RouterClient } from "@orpc/server";
+import type { AppRouter } from "@universal/orpc-client";
+import { env } from "~/config/env";
 
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-
-if (!apiUrl) {
-	throw new Error(
-		"EXPO_PUBLIC_API_URL is not set. Please configure the API URL in your environment variables.",
-	);
-}
-
-const specJSON = await fetch(`${apiUrl}/orpc/spec.json`).then((r) => r.json());
-
-const link = new OpenAPILink(specJSON, {
-	url: `${apiUrl}/orpc/`,
+const link = new RPCLink({
+	url: `${env.EXPO_PUBLIC_API_URL}/orpc`,
 });
 
-export const orpc = createORPCClient(link);
+export const orpc: RouterClient<AppRouter> = createORPCClient(link);
