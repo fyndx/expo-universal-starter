@@ -34,7 +34,7 @@
     "@biomejs/biome": "2.0.6",
     "bun-types": "latest",
     "prisma": "^6.11.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "exports": {
     "./types": "./src/types/index.ts"

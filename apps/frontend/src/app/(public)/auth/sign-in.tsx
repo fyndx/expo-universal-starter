@@ -132,7 +132,7 @@ export default function SignIn() {
 						<CardFooter className="flex-col gap-3">
 							<Button
 								onPress={handleLogin}
-								className="flex-1 flex-row items-center gap-4"
+								className="flex-row items-center gap-4"
 							>
 								{isLoading && <ActivityIndicator />}
 								<Text>{isLoading ? "Signing In..." : "Sign In"}</Text>
