@@ -4,9 +4,14 @@ import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { isOriginAllowed } from "./cors";
 import { OpenAPI } from "./lib/open-api";
-import { openAPIHandler, rpcHandler } from "./orpc";
+import {
+	useErrorMiddleware,
+	useSuccessResponseMiddleware,
+} from "./middleware/response.middleware";
+import { meRoutes } from "./modules/me";
 
 const app = new Elysia()
+	// Core
 	.use(
 		swagger({
 			documentation: {
@@ -33,6 +38,8 @@ const app = new Elysia()
 			allowedHeaders: ["Content-Type", "Authorization"],
 		}),
 	)
+	.use(useSuccessResponseMiddleware)
+	.use(useErrorMiddleware)
 	.mount(auth.handler)
 	.get("/", () => "Hello Elysia", {
 		detail: {
@@ -56,34 +63,7 @@ const app = new Elysia()
 			},
 		},
 	)
-	// Orpc
-	.all("/orpc/*", async ({ request }: { request: Request }) => {
-		const { response } = await openAPIHandler.handle(request, {
-			prefix: "/orpc",
-			context: {
-				headers: request.headers,
-			},
-		});
-
-		return response ?? new Response("Not Found", { status: 404 });
-	})
-	// RPC
-	.all(
-		"/rpc/*",
-		async ({ request }: { request: Request }) => {
-			const { response } = await rpcHandler.handle(request, {
-				prefix: "/rpc",
-				context: {
-					headers: request.headers,
-				},
-			});
-
-			return response ?? new Response("Not Found", { status: 404 });
-		},
-		{
-			parse: "none",
-		},
-	)
+	.use(meRoutes())
 	.listen(3000);
 
 console.log(
