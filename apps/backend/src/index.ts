@@ -4,6 +4,10 @@ import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { isOriginAllowed } from "./cors";
 import { OpenAPI } from "./lib/open-api";
+import {
+	useErrorMiddleware,
+	useSuccessResponseMiddleware,
+} from "./middleware/response.middleware";
 import { meRoutes } from "./modules/me";
 
 const app = new Elysia()
@@ -34,6 +38,8 @@ const app = new Elysia()
 			allowedHeaders: ["Content-Type", "Authorization"],
 		}),
 	)
+	.use(useSuccessResponseMiddleware)
+	.use(useErrorMiddleware)
 	.mount(auth.handler)
 	.get("/", () => "Hello Elysia", {
 		detail: {

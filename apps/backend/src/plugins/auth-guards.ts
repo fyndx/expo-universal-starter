@@ -7,13 +7,14 @@ export const requireAuth = () =>
 		.onBeforeHandle({ as: "scoped" }, ({ session, user, set }) => {
 			if (!session || !user) {
 				set.status = 401;
-				return { error: "UNAUTHENTICATED" };
+				throw new Error("UNAUTHENTICATED");
 			}
 		});
 
 export const requireRole = (roles: string[]) =>
 	new Elysia({ name: "requireRole" })
-		.use(requireAuth)
+		.use(withAuth())
+		.use(requireAuth())
 		.onBeforeHandle({ as: "scoped" }, ({ user, set }) => {
 			const { role } = user || {};
 			const hasRole = role && roles.includes(role);
